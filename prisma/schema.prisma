@@ -1,0 +1,164 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model Company{
+  id String @id @default(uuid())
+  userId String
+  name String @db.Text
+  description String? @db.Text
+  profileImage String? @db.Text
+  // cif String? @db.Text  //borrar
+  // phone String? @db.Text //borrar
+  // country String? @db.Text //borrar
+  // website String? @db.Text //borrar
+  contacts Contact[]
+  events Event[]
+  createdAt DateTime @default(now())
+  updatedat DateTime @updatedAt
+}
+
+model Contact{
+  id String @id @default(uuid())
+  companyId String? @db.Text
+  name String? @db.Text
+  role String? @db.Text
+  email String? @db.Text
+  phone String? @db.Text
+  createdAt DateTime @default(now())
+  updatedat DateTime @updatedAt
+  company Company? @relation(fields:[companyId], references: [id], onDelete: Cascade)
+  @@index([companyId])
+}
+
+model Event{
+  id String @id @default(uuid())
+  companyId String
+  title String
+  start DateTime
+  allDay Boolean
+  timeFormat String
+  company Company @relation(fields:[companyId], references: [id])
+  createdAt DateTime @default(now())
+  updatedat DateTime @updatedAt
+  @@index([companyId])
+
+}
+
+//////////////////
+enum Role{
+  user
+  admin
+}
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String          @unique
+  password      String?
+  emailVerified DateTime?
+  image         String?
+  role          Role    @default(user)
+  accounts      Account[]
+  // sessions      Session[]
+  // Optional for WebAuthn support
+  // Authenticator Authenticator[]
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+ 
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+ 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  @@id([provider, providerAccountId])
+}
+ 
+// model Session {
+      //   sessionToken String   @unique
+      //   userId       String
+      //   expires      DateTime
+      //   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+      //   createdAt DateTime @default(now())
+      //   updatedAt DateTime @updatedAt
+// }
+ 
+model VerificationToken {
+  identifier String @unique
+  token      String
+  expires    DateTime
+ 
+//  @@id([identifier, token])
+  @@id([identifier])
+}
+
+model Category{
+  id String @id @default(uuid())
+  name String @db.Text
+  imageUrl String? @db.Text
+  active Boolean
+  companyId String
+  products Product[]
+  createdAt DateTime @default(now())
+}
+
+model Product{
+  id String @id @default(uuid())
+  name String @db.Text
+  description String? @db.Text
+  imageUrl String? @db.Text
+  active Boolean
+  companyId String
+  categoryId String
+  productPrices ProductPrice[]
+  createdAt DateTime @default(now())
+  category Category? @relation(fields:[categoryId], references: [id], onDelete: Cascade)
+  @@index([categoryId])
+}
+
+model Size{
+  id String @id @default(uuid())
+  name String
+  companyId String
+  active Boolean
+  productPrices ProductPrice[]
+  createdAt DateTime @default(now())
+}
+
+model ProductPrice{
+  id String @id @default(uuid())
+  productId String
+  sizeId String
+  active Boolean
+  amount Decimal @db.Decimal(10, 2)
+  product Product? @relation(fields:[productId], references: [id], onDelete: Cascade)
+  size Size? @relation(fields:[sizeId], references: [id], onDelete: Cascade)
+  @@index([sizeId])
+  @@index([productId])
+}

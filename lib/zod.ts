@@ -1,0 +1,24 @@
+import { object, string } from "zod"
+ 
+export const loginSchema = object({
+  email: string({ required_error: "El email es obligatorio" })
+    .min(1, "El email es obligatorio")
+    .email("El email es invalido"),
+  password: string({ required_error: "La contraseña es obligatoria" })
+    .min(1, "La contraseña es obligatoria")
+    .min(6, "La contraseña debe tener más de 6 caracteres")
+    .max(32, "La contraseña debe tener menos de 32 caracteres"),
+})
+
+export const registerSchema = object({
+  email: string({ required_error: "El email es obligatorio" })
+    .min(1, "El email es obligatorio")
+    .email("El email es invalido"),
+  password: string({ required_error: "La contraseña es obligatoria" })
+    .min(1, "La contraseña es obligatoria")
+    .min(6, "La contraseña debe tener más de 6 caracteres")
+    .max(32, "La contraseña debe tener menos de 32 caracteres"),
+  name: string({ required_error: "El nombre es obligatorio" })
+    .min(1, "El nombre es obligatorio")
+    .max(32, "El nombre debe tener menos de 32 caracteres"),
+})
