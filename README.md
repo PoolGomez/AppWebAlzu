@@ -1,4 +1,4 @@
-# App Web Multiempresa
+# App Web Alzu
 
 Este es un proyecto para la gestion comercial multiempresa.
 
