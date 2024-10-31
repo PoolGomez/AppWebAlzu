@@ -1,3 +1,4 @@
+
 import { FormProduct } from "../FormProduct";
 import { Coins, Info, NotebookTabs, User } from "lucide-react";
 import { NewPrice } from "../NewPrice";
@@ -34,7 +35,7 @@ export function InformationProduct(props: InformationProductProps) {
             <NewPrice sizes={sizes}/>
           </div>
         </div>
-        <ListPrices product={product}/>
+        <ListPrices productId={product.id} sizes={sizes} />
       </div>
 
       {/* <FooterCategory categoryId={category.id} /> */}

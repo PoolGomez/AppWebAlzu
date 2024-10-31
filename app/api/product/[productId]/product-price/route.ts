@@ -25,6 +25,22 @@ export async function POST(
         //     return new NextResponse("Company not found", { status: 404 });
         // }
 
+        //validacionde que el tamaño exista en el producto
+        const priceExists = await db.productPrice.findMany({
+            where:{
+                sizeId : data.sizeId,
+                productId: params.productId,
+            }
+        })
+        if(priceExists.length > 0){
+            // console.log("[priceExists]",priceExists)
+            return NextResponse.json(
+                {
+                    code: "error",
+                    message:"El tamaño seleccionado ya existe para este producto"
+                })
+        }
+
         const productPrice = await db.productPrice.create({
             data:{
                 productId: params.productId,

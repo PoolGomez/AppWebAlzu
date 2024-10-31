@@ -27,14 +27,16 @@ export function FormDeleteCategory(props: FormDeleteCategoryProps) {
       try {
         axios.delete(`/api/category/${categoryId}`);
         toast({
-          title: "Categoria borrada",
+          title: "✅ Correcto",
+          description:"Categoria borrada exitosamente"
         });
         router.refresh();
         setOpenModalCreate(false);
       } catch (error) {
         console.log(error);
         toast({
-          title: "Error eliminando categoria",
+          title: "Error",
+          description:"Error al borrar la categoria",
           variant: "destructive",
         });
       }

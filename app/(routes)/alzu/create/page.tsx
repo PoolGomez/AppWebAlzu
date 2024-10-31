@@ -35,16 +35,14 @@ export default function CreateCompanyPage() {
   const { isValid } = form.formState;
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    // console.log(values);
 
     startTransition(async()=>{
 
       try {
         await axios.post("/api/company", values);
         toast({
-          title: "✅ Empresa creada exitosamente",
+          title: "✅ Correcto",
+          description:"Empresa creada exitosamente"
         });
         router.push("./");
         router.refresh()
@@ -52,7 +50,8 @@ export default function CreateCompanyPage() {
       } catch (error) {
         console.log(error);
         toast({
-          title: "❌ Error al crear la empresa",
+          title: "Error",
+          description:"Error al crear la empresa",
           variant: "destructive",
         });
       }

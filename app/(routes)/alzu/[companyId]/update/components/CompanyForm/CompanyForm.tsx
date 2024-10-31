@@ -35,13 +35,15 @@ export function CompanyForm(props: CompanyFormProps) {
         try {
             await axios.patch(`/api/company/${company.id}`, values)
             toast({
-                title:"Company updated!"
+                title:"✅ Correcto",
+                description:"Empresa actualizada exitosamente"
             })
             router.refresh();
         } catch (error) {
-            // console.log(error);
+            console.log(error);
             toast({
-                title:"Sommething went wrong",
+                title:"Error",
+                description:"Error al actualizar la empresa",
                 variant:"destructive"
             })
         }

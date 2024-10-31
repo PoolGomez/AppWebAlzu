@@ -1,4 +1,4 @@
 export * from './FormDeletePrice';
-export * from './FormInformationPrice';
+export * from './InformationPrice';
 export * from './ListPrices';
 export * from './ListPrices.types';

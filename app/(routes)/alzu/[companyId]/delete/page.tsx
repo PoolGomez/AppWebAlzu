@@ -14,7 +14,8 @@ export default function DeleteCompanyPage({params}:{params:{companyId:string}}) 
         try {
             axios.delete(`/api/company/${companyId}`)
             toast({
-                title:"Empresa borrada"
+                title:"✅ Correcto",
+                description:"Empresa borrada exitosamente"
             })
             router.refresh()
         } catch (error) {

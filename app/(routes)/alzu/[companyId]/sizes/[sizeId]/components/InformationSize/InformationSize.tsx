@@ -40,13 +40,15 @@ export function InformationSize(props: SizeInformationProps) {
         try {
           await axios.patch(`/api/size/${size.id}`, values);
           toast({
-            title: "✅ Tamaño actualizado exitosamente",
+            title: "✅ Correcto",
+            description:"Tamaño actualizado exitosamente"
           });
           router.refresh();
         } catch (error) {
           console.log(error);
           toast({
-            title: "❌ Error al actualizar el tamaño",
+            title: "Error",
+            description:"Error al actualizar el tamaño",
             variant: "destructive",
           });
         }

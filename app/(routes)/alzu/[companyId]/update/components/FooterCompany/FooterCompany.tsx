@@ -14,13 +14,15 @@ export function FooterCompany(props: FooterCompanyProps) {
         try {
             axios.delete(`/api/company/${companyId}`)
             toast({
-                title:"Company deleted"
+                title:"✅ Correcto",
+                description:"Empresa borrada exitosamente"
             })
             router.push("/companies")
         } catch (error) {
             console.log(error)
             toast({
-                title:"Something went wrong",
+                title:"Error",
+                description:"Error al borrar la empresa",
                 variant:"destructive"
             })
         }

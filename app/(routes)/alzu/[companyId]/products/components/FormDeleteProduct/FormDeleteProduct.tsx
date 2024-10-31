@@ -27,14 +27,16 @@ export function FormDeleteProduct(props: FormDeleteProductProps) {
       try {
         axios.delete(`/api/product/${productId}`);
         toast({
-          title: "Producto borrado",
+          title: "✅ Correcto",
+          description:"Producto borrado exitosamente"
         });
         router.refresh();
         setOpenModalCreate(false);
       } catch (error) {
         console.log(error);
         toast({
-          title: "Error eliminando producto",
+          title: "Error",
+          description:"Error al borrar el producto",
           variant: "destructive",
         });
       }

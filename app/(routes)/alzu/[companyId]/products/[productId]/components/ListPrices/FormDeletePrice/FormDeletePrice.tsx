@@ -19,7 +19,8 @@ export function FormDeletePrice(props:FormDeletePriceProps) {
         try {
             axios.delete(`/api/product-price/${priceId}`);
             toast({
-            title: "✅ Precio borrado",
+              title: "✅ Correcto",
+              description:"Precio borrado exitosamente"
             });
             
             router.refresh();
@@ -27,8 +28,9 @@ export function FormDeletePrice(props:FormDeletePriceProps) {
         } catch (error) {
             console.log(error);
             toast({
-            title: "❌ Error eliminando precio",
-            variant: "destructive",
+              title: "Error",
+              description:"Error al borrar el precio",
+              variant: "destructive",
             });
         }
         });

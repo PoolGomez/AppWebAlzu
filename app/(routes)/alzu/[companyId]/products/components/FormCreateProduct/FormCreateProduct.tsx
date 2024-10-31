@@ -34,19 +34,21 @@ export function FormCreateProduct(props: FormCreateProductProps) {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // ✅ 
+    
     startTransition(async () => {
       try {
         axios.post("/api/product", values);
         toast({
-          title: "✅ Producto creado correctamente",
+          title: "✅ Correcto",
+          description:"Producto creado exitosamente"
         });
         router.refresh();
         setOpenModalCreate(false);
       } catch (error) {
         console.log(error);
         toast({
-          title: "❌ Error al crear el producto",
+          title: "Error",
+          description:"Error al crear el producto",
           variant: "destructive",
         });
       }

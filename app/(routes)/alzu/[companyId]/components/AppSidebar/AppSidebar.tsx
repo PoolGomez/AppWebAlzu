@@ -142,8 +142,8 @@ const data = {
       icon: BookOpen,
       items: [
         {
-          title: "Atencion",
-          url: "#",
+          title: "Vender",
+          url: "sell",
         },
         // {
         //   title: "Get Started",

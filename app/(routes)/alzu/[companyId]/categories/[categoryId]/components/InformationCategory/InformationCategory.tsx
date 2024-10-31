@@ -32,29 +32,23 @@ export function InformationCategory(props: CategoryInformationProps) {
     });
   
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
-      // Do something with the form values.
-      // ✅ This will be type-safe and validated.
-    //   console.log(values);
   
       startTransition(async()=>{
-  
         try {
           await axios.patch(`/api/category/${category.id}`, values);
           toast({
-            title: "✅ Categoria actualizada exitosamente",
+            title: "✅ Correcto",
+            description: "Categoria actualizada exitosamente",
           });
           router.refresh();
         } catch (error) {
           console.log(error);
           toast({
-            title: "❌ Error al actualizar la categoria",
-            variant: "destructive",
+            title: "Error",
+            description: "Error al actualizar la categoria",
+            variant:"destructive"
           });
         }
-        // finally{
-        //     router.push(`/alzu/${category.companyId}/categories`)
-        // }
-  
       })
       
     };

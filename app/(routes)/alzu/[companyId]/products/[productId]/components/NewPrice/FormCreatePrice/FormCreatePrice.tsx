@@ -30,16 +30,30 @@ export function FormCreatePrice(props: FormCreatePriceProps) {
     })
 
     const onSubmit = async (values: z.infer<typeof formCreatePriceSchema>) => {
-        // console.log("On SUBMIT")
+        
         try {
-            axios.post(`/api/product/${params.productId}/product-price`,values)
-            toast({title:"Precio creado!"})
+            const response = await axios.post(`/api/product/${params.productId}/product-price`,values)
+            console.log("[response]",response.data)
+            if(response.data.code === "error"){
+                toast({
+                    title: "❌ Error",
+                    description: response.data.message,
+                })
+                router.refresh()
+                setOpen(false)
+                return false
+            }
+            toast({
+                title: "✅ Correcto",
+                description: "Precio creado exitosamente",
+            })
             router.refresh()
             setOpen(false)
         } catch (error) {
             console.log(error)
             toast({
-                title:"Error al crear el precio del producto",
+                title:"Error",
+                description: "Error al crear el precio del producto",
                 variant:"destructive"
             })
         }
@@ -48,8 +62,6 @@ export function FormCreatePrice(props: FormCreatePriceProps) {
   return (
     <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="md:grid-cols-1 grid gap-4">
-        
-
         <FormField
             control={form.control}
             name="sizeId"

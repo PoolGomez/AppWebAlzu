@@ -3,8 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Pencil } from "lucide-react";
 import { useState } from "react";
+import { FormPrice } from "./FormPrice";
+import { InformationPriceProps } from "./InformationPrice.types";
 
-export function FormInformationPrice() {
+export function InformationPrice(props:InformationPriceProps) {
+    const {productPrice,size} = props
     const [open, setOpen] = useState(false)
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -18,7 +21,8 @@ export function FormInformationPrice() {
                                         Actualiza los datos del precio
                                     </DialogDescription>
                                 </DialogHeader>
-                                FORMULARIO PARA ACTUALIZAR PRECIO
+                                
+                                <FormPrice setOpen={setOpen} productPrice={productPrice} size={size} />
                                 {/* <FormCreatePrice setOpen={setOpen} sizes={sizes} /> */}
                             </DialogContent>
                         </Dialog>

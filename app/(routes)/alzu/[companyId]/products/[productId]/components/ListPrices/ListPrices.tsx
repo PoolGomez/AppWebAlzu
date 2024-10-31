@@ -5,16 +5,16 @@ import { Separator } from "@/components/ui/separator";
 import { formatPrice } from "@/lib/formatPrice";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FormInformationPrice } from "./FormInformationPrice";
 import { FormDeletePrice } from "./FormDeletePrice";
+import { InformationPrice } from "./InformationPrice";
 
 
 export async function ListPrices(props:ListPricesProps) {
-    const {product} = props;
+    const {productId ,sizes} = props;
 
     const productPrices = await db.productPrice.findMany({
         where: {
-            productId: product.id
+            productId: productId
         },
         include: {
             size: true, // Incluye la relación con la categoría
@@ -57,7 +57,7 @@ export async function ListPrices(props:ListPricesProps) {
                             <Pencil className="w-4 h-4" />
                         </Button> */}
 
-                        <FormInformationPrice />
+                        <InformationPrice productPrice={price} size={price.size} />
 
                         {/* <Button className="w-6 h-6" variant="default">
                             <Pencil className="w-4 h-4" />

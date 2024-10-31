@@ -27,14 +27,16 @@ export function FormDeleteSize(props: FormDeleteSizeProps) {
       try {
         axios.delete(`/api/size/${sizeId}`);
         toast({
-          title: "Tamaño borrado",
+          title: "✅ Correcto",
+          description:"Tamaño borrado exitosamente"
         });
         router.refresh();
         setOpenModalCreate(false);
       } catch (error) {
         console.log(error);
         toast({
-          title: "Error eliminando tamaño",
+          title: "Error",
+          description:"Error al borrar el tamaño",
           variant: "destructive",
         });
       }

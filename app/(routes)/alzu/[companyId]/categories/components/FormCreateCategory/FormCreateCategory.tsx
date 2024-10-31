@@ -41,21 +41,20 @@ export function FormCreateCategory(props: FormCreateCategoryProps) {
   // const {isValid} = form.formState;
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    // console.log(values)
     startTransition(async () => {
       try {
         axios.post("/api/category", values);
         toast({
-          title: "Categoria creada",
+          title: "✅ Correcto",
+          description: "Categoria creada exitosamente",
         });
         router.refresh();
         setOpenModalCreate(false);
       } catch (error) {
         console.log(error);
         toast({
-          title: "Error al crear la categoria",
+          title: "Error",
+          description: "Error al crear la categoria",
           variant: "destructive",
         });
       }

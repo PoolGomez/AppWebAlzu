@@ -1,5 +1,6 @@
-import { Product } from "@prisma/client";
+import { Product, Size } from "@prisma/client";
 
 export type ListPricesProps = {
-    product: Product;
+    productId: string;
+    sizes: Size[];
 }

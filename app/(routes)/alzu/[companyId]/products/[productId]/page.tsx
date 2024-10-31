@@ -10,6 +10,7 @@ export default async function ProductDetailPage({params}:{params:{productId:stri
       companyId: params.companyId
     }
   })
+  
   const categories= await db.category.findMany({
     where:{
         companyId : params.companyId
@@ -18,11 +19,34 @@ export default async function ProductDetailPage({params}:{params:{productId:stri
         createdAt: "desc"
     }
   })
+  
 
+  // const sizes = await db.size.findMany({
+  //   where:{
+  //     companyId : params.companyId,
+  //     active: true
+  //   },
+  //   orderBy:{
+  //     name: "asc"
+  //   }
+  // })
+
+  // solo los tamaños disponible
   const sizes = await db.size.findMany({
     where:{
       companyId : params.companyId,
-      active: true
+      active: true,
+
+      id:{
+        notIn: await db.productPrice.findMany({
+          where:{
+            productId: params.productId,
+            active:true
+          },
+
+        }).then(s => s.map(size => size.sizeId))
+      }
+
     },
     orderBy:{
       name: "asc"
@@ -33,7 +57,7 @@ export default async function ProductDetailPage({params}:{params:{productId:stri
     <div  className='flex flex-col h-screen'>
 
       <HeaderProduct companyId={params.companyId} />
-
+      
       {product ? (
         <>
         <InformationProduct product={product} categories={categories} sizes={sizes}/>

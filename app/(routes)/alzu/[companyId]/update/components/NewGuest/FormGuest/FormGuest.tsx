@@ -33,13 +33,17 @@ export function FormGuest(props: FormContactProps) {
         console.log("On SUBMIT")
         try {
             // axios.post(`/api/company/${params.companyId}/contact`,values)
-            // toast({title:"Contact creared!"})
+            toast({
+                title:"✅ Correcto",
+                description:"Invitado creado exitosamente",
+            })
             router.refresh()
             setOpen(false)
         } catch (error) {
             console.log(error)
             toast({
-                title:"There was an error",
+                title:"Error",
+                description:"Error al crear el invitado",
                 variant:"destructive"
             })
         }

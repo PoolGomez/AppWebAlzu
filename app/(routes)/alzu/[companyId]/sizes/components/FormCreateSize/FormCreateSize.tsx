@@ -41,15 +41,17 @@ export function FormCreateSize(props:FormCreateSizeProps) {
         try {
             axios.post("/api/size", values);
             toast({
-            title: "✅ Tamaño creado",
+              title: "✅ Correcto",
+              description:"Tamaño creado exitosamente"
             });
             router.refresh();
             setOpenModalCreate(false);
         } catch (error) {
             console.log(error);
             toast({
-            title: "Error al crear el tamaño",
-            variant: "destructive",
+              title: "Error",
+              description:"Error al crear el tamaño",
+              variant: "destructive",
             });
         }
         });

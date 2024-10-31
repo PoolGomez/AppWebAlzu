@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Product } from "@prisma/client"
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown, Pencil, Trash2 } from "lucide-react"
-import Image from "next/image"
+// import Image from "next/image"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { FormDeleteProduct } from "../FormDeleteProduct"
@@ -51,15 +51,11 @@ export const columns: ColumnDef<Product>[]=[
                     </Button>
                 )
             },
-            cell: ({ row }) => {
-                // const categoryName = row.getValue("category.name");
-                const {category} = row.original
+            cell: ({ row}) => {
+                const product : any = row.original
                 return (
-                    <div 
-                    // className="flex justify-center"
-                    >
-                        {/* {categoryName} Muestra el nombre de la categoría */}
-                        {category.name}
+                    <div>
+                        {product.category ? product.category.name : 'Sin categoría'}
                     </div>
                 );
             }

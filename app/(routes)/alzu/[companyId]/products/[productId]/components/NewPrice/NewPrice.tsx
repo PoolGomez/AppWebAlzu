@@ -12,7 +12,15 @@ export function NewPrice({sizes}:{sizes: Size[]}) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-            <Button><Plus/>Agregar</Button>
+            <Button 
+            disabled={sizes.length === 0 ? true : false} 
+            >
+                {sizes.length > 0 && <Plus/>}
+                {sizes.length === 0 ? "Precios completos" : "Agregar"}
+                    {/* <Plus/>Agregar */}
+                
+                
+            </Button>
         </DialogTrigger>
         <DialogContent className='sm:max-w-[625px]'>
             <DialogHeader>
