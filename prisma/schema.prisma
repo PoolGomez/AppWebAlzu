@@ -132,7 +132,7 @@ model Product{
   id String @id @default(uuid())
   name String @db.Text
   description String? @db.Text
-  imageUrl String? @db.Text
+  imageUrl String @db.Text
   active Boolean
   companyId String
   categoryId String
@@ -161,4 +161,12 @@ model ProductPrice{
   size Size? @relation(fields:[sizeId], references: [id], onDelete: Cascade)
   @@index([sizeId])
   @@index([productId])
+}
+
+model Table{
+  id String @id @default(uuid())
+  name String
+  companyId String
+  active Boolean
+  createdAt DateTime @default(now())
 }

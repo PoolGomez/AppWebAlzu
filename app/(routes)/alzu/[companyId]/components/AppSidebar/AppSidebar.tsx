@@ -111,6 +111,10 @@ const data = {
           title: "Tamaños",
           url: "/sizes",
         },
+        {
+          title: "Mesas",
+          url: "/tables",
+        },
         // {
         //   title: "Settings",
         //   url: "#",
@@ -122,6 +126,10 @@ const data = {
       url: "#",
       icon: Bot,
       items: [
+        {
+          title: "Bandeja",
+          url: "#",
+        },
         {
           title: "Bandeja",
           url: "#",
@@ -144,6 +152,18 @@ const data = {
         {
           title: "Vender",
           url: "sell",
+        },
+        {
+          title: "Vender2",
+          url: "sell2",
+        },
+        {
+          title: "Mesas",
+          url: "mesas",
+        },
+        {
+          title: "Croquis",
+          url: "croquis",
         },
         // {
         //   title: "Get Started",
