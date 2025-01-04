@@ -23,7 +23,7 @@ export default function LoginPage(
 
                 {/* ========== Form =========== */}
                 <div className="pt-10 lg:p-8 flex items-center md:h-[70vh]">
-                    <div className="mz-auto fllex w-full flex-col justify-center space-y-6 sm:w-[450px]">
+                    <div className="mz-auto flex w-full flex-col justify-center space-y-6 sm:w-[450px]">
                     <FormLogin 
                     // isVerifyEmail={isVerify}
                     />

@@ -112,6 +112,10 @@ const data = {
           url: "/sizes",
         },
         {
+          title: "Salas",
+          url: "/rooms",
+        },
+        {
           title: "Mesas",
           url: "/tables",
         },
@@ -162,8 +166,8 @@ const data = {
           url: "mesas",
         },
         {
-          title: "Croquis",
-          url: "croquis",
+          title: "Atención",
+          url: "atencion",
         },
         // {
         //   title: "Get Started",

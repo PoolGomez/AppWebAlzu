@@ -163,9 +163,34 @@ model ProductPrice{
   @@index([productId])
 }
 
+// model Table{
+//   id String @id @default(uuid())
+//   name String
+//   companyId String
+//   active Boolean
+//   createdAt DateTime @default(now())
+// }
+enum StatusTable{
+  available
+  occupied
+  disabled
+  reserved
+}
 model Table{
   id String @id @default(uuid())
   name String
+  roomId String
+  status StatusTable
+  column Int
+  row Int
+  createdAt DateTime @default(now())
+}
+
+model Room {
+  id String @id @default(uuid())
+  name String
+  rows Int
+  columns Int
   companyId String
   active Boolean
   createdAt DateTime @default(now())

@@ -9,6 +9,9 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+		spacing: {
+			'tab-gap': '1rem', // Espaciado personalizado entre tabs
+		  },
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',

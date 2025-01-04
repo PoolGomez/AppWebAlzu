@@ -20,7 +20,6 @@ export async function PATCH(req: Request, {params}:{params:{sizeId: string}}){
                 ...values,
             },
         });
-
         revalidatePath(`/alzu/${size.companyId}/sizes`)
         return NextResponse.json(size);
 

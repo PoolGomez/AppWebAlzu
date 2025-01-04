@@ -1,39 +1,42 @@
 "use client"
-import { useRouter } from "next/navigation";
-import { FormCreateTableProps } from "./FormCreateTable.types";
-import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { LoaderCircle } from "lucide-react";
+import { Dispatch, SetStateAction, useTransition } from "react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { formSchemaCreateTable } from "./FormCreateTable.form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { formCreateTableSchema } from "./FormCreateTable.form";
-import { useTransition } from "react";
 import axios from "axios";
 import { toast } from "@/hooks/use-toast";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
-import { LoaderCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { StatusTable } from "@prisma/client";
 
+type FormCreateTableProps = {
+    roomId: string;
+    row: number;
+    column: number;
+    setOpenModalCreate : Dispatch<SetStateAction<boolean>>;
+}
 
-export function FormCreateTable(props:FormCreateTableProps) {
+export function FormCreateTable(props: FormCreateTableProps) {
 
-    const { companyId, setOpenModalCreate } = props;
-    
-    const router = useRouter();
-    // const [photoUploaded,setPhotoUploaded] = useState(false);
+    const { roomId,row,column, setOpenModalCreate } = props;
     const [isPending, startTransition] = useTransition();
-    const form = useForm<z.infer<typeof formCreateTableSchema>>({
-        resolver: zodResolver(formCreateTableSchema),
+    const router = useRouter();
+    const form = useForm<z.infer<typeof formSchemaCreateTable>>({
+        resolver: zodResolver(formSchemaCreateTable),
         defaultValues: {
         name: "",
-        active: true,
-        companyId,
+        roomId: roomId,
+        status: StatusTable.available,
+        column: column,
+        row: row,
         },
     });
 
-    // const {isValid} = form.formState;
-
-    function onSubmit(values: z.infer<typeof formCreateTableSchema>) {
+    function onSubmit(values: z.infer<typeof formSchemaCreateTable>) {
         startTransition(async () => {
         try {
             const response = await axios.post("/api/table", values);
@@ -54,6 +57,7 @@ export function FormCreateTable(props:FormCreateTableProps) {
         }
         });
     }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -79,29 +83,11 @@ export function FormCreateTable(props:FormCreateTableProps) {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="active"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-base">Disponible</FormLabel>
-                <div className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <FormDescription>
-                    La categoria estara disponible en la lista de atención
-                  </FormDescription>
+          <label>
+            Row: {row}
+            Column: {column}
+          </label>
 
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      // disabled
-                      aria-readonly
-                    />
-                  </FormControl>
-                </div>
-              </FormItem>
-            )}
-          />
         </div>
         <div className="flex items-center justify-center">
           <Button type="submit" disabled={isPending}>
