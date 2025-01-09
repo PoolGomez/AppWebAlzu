@@ -19,6 +19,12 @@ export async function ListPrices(props:ListPricesProps) {
         include: {
             size: true, // Incluye la relación con la categoría
         }
+    }).then((data)=>{
+        
+        return  data.map((price)=>({
+            ...price,
+            amount: parseFloat(price.amount.toString())
+        }))
     })
 
     if(productPrices.length === 0){

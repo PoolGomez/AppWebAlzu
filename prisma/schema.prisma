@@ -180,6 +180,7 @@ model Table{
   id String @id @default(uuid())
   name String
   roomId String
+  companyId String
   status StatusTable
   column Int
   row Int
@@ -194,4 +195,25 @@ model Room {
   companyId String
   active Boolean
   createdAt DateTime @default(now())
+}
+
+enum StatusOrder{
+  created
+  prepared
+  delivered
+  paid
+  canceled
+}
+
+model Order {
+  id String @id @default(uuid())
+  room String
+  table String
+  productId String
+  productName String
+  priceAmount Decimal @db.Decimal(10, 2)
+  quantity Int
+  total Decimal @db.Decimal(10, 2)
+  note String
+  status StatusOrder
 }

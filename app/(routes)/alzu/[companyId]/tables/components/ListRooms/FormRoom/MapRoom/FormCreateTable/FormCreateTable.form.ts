@@ -6,5 +6,5 @@ export const formSchemaCreateTable = z.object({
     roomId: z.string(),
     row: z.number(),
     column: z.number(),
-    
+    companyId: z.string(),
   })

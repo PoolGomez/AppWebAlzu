@@ -95,7 +95,7 @@ export function FormCreatePrice(props: FormCreatePriceProps) {
                 <FormItem>
                     <FormLabel>Monto</FormLabel>
                     <FormControl>
-                        <Input type="number" placeholder="0.00" 
+                        <Input type="number" placeholder="0" 
                         value={field.value} // Asegúrate de que el valor se mantenga actualizado
                         onChange={(e) => {
                             const value = e.target.value;

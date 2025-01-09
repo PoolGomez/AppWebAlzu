@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { StatusTable } from "@prisma/client";
 
 type FormCreateTableProps = {
+    companyId: string;
     roomId: string;
     row: number;
     column: number;
@@ -22,7 +23,7 @@ type FormCreateTableProps = {
 
 export function FormCreateTable(props: FormCreateTableProps) {
 
-    const { roomId,row,column, setOpenModalCreate } = props;
+    const {companyId, roomId,row,column, setOpenModalCreate } = props;
     const [isPending, startTransition] = useTransition();
     const router = useRouter();
     const form = useForm<z.infer<typeof formSchemaCreateTable>>({
@@ -33,6 +34,7 @@ export function FormCreateTable(props: FormCreateTableProps) {
         status: StatusTable.available,
         column: column,
         row: row,
+        companyId: companyId
         },
     });
 
