@@ -2,6 +2,8 @@ import { db } from '@/lib/db'
 import React from 'react'
 import { DataTable } from './data-table'
 import { columns } from './columns'
+import { ListView } from './listview'
+
 
 export async function ListProducts({companyId}:{companyId: string}) {
 
@@ -18,6 +20,15 @@ export async function ListProducts({companyId}:{companyId: string}) {
     })
 
   return (
-    <DataTable columns={columns} data={products} />
+    <>
+    <div className='hidden md:block'>
+        <DataTable columns={columns} data={products} />
+    </div>
+    <div className='block md:hidden'>
+
+        <ListView products={products}/>
+
+    </div>
+    </>
   )
 }
