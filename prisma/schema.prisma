@@ -207,10 +207,13 @@ enum StatusOrder{
 
 model Order {
   id String @id @default(uuid())
+  companyId String
   room String
+  tableId String
   table String
   productId String
   productName String
+  sizeName String
   priceAmount Decimal @db.Decimal(10, 2)
   quantity Int
   total Decimal @db.Decimal(10, 2)

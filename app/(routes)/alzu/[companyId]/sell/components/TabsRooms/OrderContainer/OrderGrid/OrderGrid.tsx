@@ -1,6 +1,6 @@
 "use client";
 import { Separator } from "@/components/ui/separator";
-import { Category, Product, ProductPrice, Room, Table } from "@prisma/client";
+import { Category, Order, Product, ProductPrice, Room, StatusOrder, Table } from "@prisma/client";
 import { ChevronLeft, ChevronRight, Minus, Plus } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { OrderDetail } from "../OrderDetail";
@@ -29,16 +29,17 @@ export function OrderGrid(props: Props) {
 
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [selectedTable, setSelectedTable] = useState<Table | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
-    null
-  );
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedPrice, setSelectedPrice] = useState<ProductPrice | null>(null);
+  const [selectedSizeName, setSelectedSizeName] = useState<String | null> (null);
+  const [orders, setOrders] = useState<Order[]>([]);
+
+
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState('');
   const [total, setTotal] = useState(0);
 
-  const [listProducts, setListProducts] = useState<Product[]>([]);
 
   const [roomsApi, setRoomsApi] = useState<Room[]>([]);
   const [tablesApi, setTablesApi] = useState<Table[]>([]);
@@ -67,9 +68,12 @@ export function OrderGrid(props: Props) {
       try {
           const response = await axios.post("/api/order", {
             room: selectedRoom?.name,
+            companyId: companyId,
+            tableId: selectedTable?.id,
             table: selectedTable?.name,
             productId: selectedProduct?.id,
             productName: selectedProduct?.name,
+            sizeName: selectedSizeName,
             priceAmount: selectedPrice?.amount,
             quantity: quantity,
             total: calculateTotal(),
@@ -78,6 +82,7 @@ export function OrderGrid(props: Props) {
           });
           setSelectedProduct(null)
           setSelectedPrice(null)
+          getOrders();
           toast({
           title: "✅ Correcto",
           description: "Pedido agregado exitosamente",
@@ -128,8 +133,52 @@ export function OrderGrid(props: Props) {
     fetchTables();
   }, [selectedRoom])
 
+  async function getOrders(){
+    try{
+      const { data } = await axios.get("/api/order",{
+        params:{
+          tableId: selectedTable?.id,
+          status: StatusOrder.created
+        }
+      });
+      setOrders(data)
+    }catch(error){
+      console.error('Error loading orders:', error);
+    }
+  }
+
+  const onDeleteOrder = async (orderId : string) => {
+    startTransition(async () => {
+      try {
+        // console.log("order antes:", orders)
+        // setOrders((prevOrders) => prevOrders.filter((order) => order.id !== orderId));
+        await axios.delete(`/api/order/${orderId}`);
+        toast({
+          title: "✅ Correcto",
+          description:"producto borrado del pedido exitosamente"
+        });
+        
+
+        await getOrders()
+        // router.refresh();
+        console.log("order despues:", orders)
+      } catch (error) {
+        console.log(error);
+        toast({
+          title: "Error",
+          description:"Error al borrar el producto del pedido",
+          variant: "destructive",
+        });
+      }
+    });
+  };
+
   useEffect(() => {
-    if (!selectedTable) return;
+    if (!selectedTable) {
+      setOrders([])
+      return;
+    } 
+    
     async function fetchCategories() {
       try {
         const {data} = await axios.get("/api/category",{
@@ -143,6 +192,7 @@ export function OrderGrid(props: Props) {
       }
     }
     fetchCategories();
+    getOrders();
   }, [selectedTable]);
 
   useEffect(() => {
@@ -172,7 +222,8 @@ export function OrderGrid(props: Props) {
           }
         });
         setProductPricesApi(data);
-        setSelectedPrice(data[0])
+        setSelectedPrice(data[0]);
+        setSelectedSizeName(data[0].size.name);
         
         
       } catch (error) {
@@ -195,10 +246,7 @@ export function OrderGrid(props: Props) {
     }
   };
 
-  const addProductSell = (product: Product) => {
-    setListProducts((list) =>[...list, product])
-    
-  }
+  
 
   return (
     <>
@@ -281,8 +329,8 @@ export function OrderGrid(props: Props) {
               {Array.from({
                 length: selectedRoom.rows * selectedRoom.columns,
               }).map((_, index) => {
-                const row = Math.floor(index / selectedRoom.rows);
-                const column = index % selectedRoom.rows;
+                const row = Math.floor(index / selectedRoom.columns);
+                const column = index % selectedRoom.columns;
                 const keycell = `${row}-${column}`;
 
                 const foundTable = tablesApi.find(
@@ -523,7 +571,10 @@ export function OrderGrid(props: Props) {
                 <button
                   key={price.id}
                   // onClick={() => setSelectedSize(size)}
-                  onClick={()=>setSelectedPrice(price)}
+                  onClick={()=> {
+                    setSelectedPrice(price) 
+                    setSelectedSizeName(price.size.name)
+                  }}
                   className={`p-3 rounded-lg border-2 ${
                     selectedPrice?.id === price.id
                       ? 'border-blue-500 bg-blue-50'
@@ -628,8 +679,8 @@ export function OrderGrid(props: Props) {
 
       </div>
 
-      <div className="rounded-lg bg-background shadow-md hover:shadow-lg p-2 sm:p-4 w-full h-full">
-        <OrderDetail listProducts={listProducts}/>
+      <div className="flex flex-col min-h-[600px] max-h-[800px] rounded-lg bg-background shadow-md hover:shadow-lg p-2 sm:p-4 w-full h-full">
+        <OrderDetail  orders={orders} onDeleteOrder={onDeleteOrder}/>
       </div>
     </>
   );
