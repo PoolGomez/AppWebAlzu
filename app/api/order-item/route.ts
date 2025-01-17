@@ -12,20 +12,21 @@ export async function POST (req: Request){
         }
 
         // console.log('session: ',session)
-        const product = await db.product.create({
+        const order = await db.orderItem.create({
             data:{
-                name: data.name,
-                description: data.description,
-                imageUrl: data.imageUrl,
-                active: data.active,
-                companyId: data.companyId,
-                categoryId: data.categoryId
+                orderId :data.orderId,
+                productId: data.productId,
+                sizeName: data.sizeName,
+                quantity: data.quantity,
+                price: data.price,
+                notes: data.notes,
+                status: data.status
             },
         });
-        return NextResponse.json(product);
+        return NextResponse.json(order);
 
     } catch (error) {
-        console.log("[POST PRODUCT]", error);
+        console.log("[POST CREATE ORDER-ITEM]", error);
         return new NextResponse("Internal Error", { status: 500});
     }
 }
@@ -38,26 +39,33 @@ export async function GET (req: Request){
         }
 
         const { searchParams } = new URL(req.url);
-        const categoryId = searchParams.get("categoryId");
+        const orderId = searchParams.get("orderId");
 
-        if (!categoryId) {
-            return new NextResponse("Missing categoryId", { status: 400 });
+        if (!orderId) {
+            return new NextResponse("Missing orderId", { status: 400 });
         }
 
-        const categories = await db.product.findMany({
+        const orders = await db.orderItem.findMany({
             where: {
-                categoryId: categoryId
+                orderId: orderId
             },
             orderBy: {
-                createdAt: "asc",
+                createdAt: "desc",
             },
-            include:{
-                category: true
-            }
+
+
+            // where: {
+            //     AND: [
+            //       { tableId: tableId },
+            //       { status: status },
+            //     ],
+            //   },
+
+
         })
-        return NextResponse.json(categories)
+        return NextResponse.json(orders)
     } catch (error) {
-        console.log("[GET PRODUCT]", error);
+        console.log("[GET ORDER-ITEM]", error);
         return new NextResponse("Internal Error", { status: 500});
     }
 }

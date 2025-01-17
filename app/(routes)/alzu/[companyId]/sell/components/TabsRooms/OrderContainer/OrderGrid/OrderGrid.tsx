@@ -4,26 +4,25 @@ import { Category, Order, Product, ProductPrice, Room, StatusOrder, Table } from
 import { ChevronLeft, ChevronRight, Minus, Plus } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { OrderDetail } from "../OrderDetail";
-import { Button } from "@/components/ui/button";
-import { ProductPrices } from "./ProductPrices";
 import axios from "axios";
 import { formatPrice } from "@/lib/formatPrice";
-import { ProductDetail } from "./ProductDetail";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { OrderProducto } from "@/domain";
+import Image from "next/image";
 
 type Props = {
   companyId:string,
-  rooms: Room[];
-  tables: Table[];
-  categories: Category[];
-  products: Product[];
+  // rooms: Room[];
+  // tables: Table[];
+  // categories: Category[];
+  // products: Product[];
 };
 
 export function OrderGrid(props: Props) {
-  const { companyId, rooms, tables, categories, products } = props;
+  const { companyId,
+    //  rooms, tables, categories, products 
+    } = props;
   // const [columns, setColumns] = useState(room.columns);
   // const [rows, setRows] = useState(room.rows);
 
@@ -33,7 +32,7 @@ export function OrderGrid(props: Props) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedPrice, setSelectedPrice] = useState<ProductPrice | null>(null);
   const [selectedSizeName, setSelectedSizeName] = useState<String | null> (null);
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<OrderProducto[]>([]);
 
 
   const [quantity, setQuantity] = useState(1);
@@ -48,11 +47,12 @@ export function OrderGrid(props: Props) {
   const [productPricesApi, setProductPricesApi] = useState<ProductPrice[]>([]);
 
   const [isPending, startTransition] = useTransition();
+  const [isPendingSendOrders, startTransitionSendOrders] = useTransition();
   const router = useRouter();
 
   const calculateTotal = () => {
     if(selectedPrice){
-      const priceFinal = parseFloat(selectedPrice.amount.toString()) * quantity;
+      const priceFinal = (parseFloat(selectedPrice.amount.toString()) / 100 ) * quantity;
       return priceFinal;
     }
     return 0;
@@ -66,18 +66,25 @@ export function OrderGrid(props: Props) {
   const handleSubmit = () => {
     startTransition(async () => {
       try {
+        console.log("selectedPrice:", selectedPrice?.amount)
+        if(!selectedPrice?.amount){
+          console.log("Debe seleccionar un precio")
+          toast({
+            title: "Warning",
+            description: "Debe seleccionar un precio para continuar",
+            variant: "destructive",
+          });
+          return
+        }
           const response = await axios.post("/api/order", {
-            room: selectedRoom?.name,
+            roomId: selectedRoom?.id,
             companyId: companyId,
             tableId: selectedTable?.id,
-            table: selectedTable?.name,
             productId: selectedProduct?.id,
-            productName: selectedProduct?.name,
             sizeName: selectedSizeName,
-            priceAmount: selectedPrice?.amount,
+            price: Number(selectedPrice?.amount),
             quantity: quantity,
-            total: calculateTotal(),
-            note: notes,
+            notes: notes,
             status: "created"
           });
           setSelectedProduct(null)
@@ -89,6 +96,7 @@ export function OrderGrid(props: Props) {
           });
           router.refresh();
       } catch (error) {
+        console.log("error:",error)
           toast({
             title: "Error",
             description: "Error al crear el pedido",
@@ -138,13 +146,55 @@ export function OrderGrid(props: Props) {
       const { data } = await axios.get("/api/order",{
         params:{
           tableId: selectedTable?.id,
-          status: StatusOrder.created
+          status: StatusOrder.paid
         }
       });
       setOrders(data)
     }catch(error){
       console.error('Error loading orders:', error);
     }
+  }
+
+  function sendOrders(){
+    startTransitionSendOrders(async()=>{
+      try {
+        // orders.forEach(async (order) => {
+        //   await axios.patch(`/api/order`, {
+        //     tableId: selectedTable.id
+        //     // status: StatusOrder.progress
+        //   });
+        // })
+        await axios.patch(`/api/order`, {
+          companyId: companyId,
+          tableId: selectedTable?.id
+          // status: StatusOrder.progress
+        });
+        
+        // toast({
+        //   title: "✅ Correcto",
+        //   description: "Pedidos enviados exitosamente",
+        // });
+        
+        // router.refresh();
+      } catch (error) {
+        console.log(error);
+        toast({
+          title: "Error",
+          description: "Error al enviar el pedido",
+          variant: "destructive",
+        });
+      }finally{
+        // setOrders([])
+        getOrders();
+        toast({
+          title: "✅ Correcto",
+          description: "Pedidos enviados exitosamente",
+        });
+        // initialValues.current = formValues;
+        router.refresh();
+      }
+    })
+    
   }
 
   const onDeleteOrder = async (orderId : string) => {
@@ -488,37 +538,66 @@ export function OrderGrid(props: Props) {
             </div>
             <Separator className="my-4" />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-              {productsApi.map((item) => {
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {productsApi.map((item: any) => {
                 if (item.categoryId === selectedCategory.id) {
                   return (
                     <button
                       key={item.id}
-                      // onClick={() => onSelect(item)}
                       onClick={()=>setSelectedProduct(item)}
-                      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-4 flex items-center space-x-4"
+                      className="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300"
                     >
-                      {/* {showImage && item.image && (
-              <img
-                src={item.image}
-                alt={item.name}
-                className="w-20 h-20 object-cover rounded-lg"
-              />
-            )} */}
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-lg text-gray-800">
-                          {item.name}
-                        </h3>
-                        {/* {showPrice && item.price && (
-                <p className="text-green-600 font-medium">
-                  {item.price.toFixed(2)} €
-                </p>
-              )} */}
-                        {/* {item.description && (
-                <p className="text-sm text-gray-600 mt-1">{item.description}</p>
-              )} */}
+                      
+                      <div  className="w-full h-48 relative">
+
+                          <Image 
+                            // src="https://tailwindui.com/plus/img/ecommerce-images/shopping-cart-page-04-product-01.jpg" 
+                            src={item.imageUrl}
+                            alt={item.name}
+                            layout="fill"
+                            objectFit="cover"
+                            className="rounded-t-lg" 
+                          />
+
+
+
                       </div>
-                      <ChevronRight className="text-gray-400" />
+
+                      <div 
+                      className="p-2"
+                      
+                      >
+                      
+                      <h2 
+                      
+                      className="text-lg font-semibold text-gray-800  truncate"
+                        style={{
+                          fontSize: 'clamp(0.75rem, 1vw, 1rem)', // Ajusta dinámicamente entre 12px y 16px.
+                          lineHeight: '1',
+                          whiteSpace: 'normal', // Permite envolver el texto.
+                          wordWrap: 'break-word', // Divide palabras largas.
+                          overflow: 'hidden', // Evita desbordes.
+                          height: '2rem', // Altura fija para mantener consistencia
+                          
+                        }}
+                      >
+                        {item.name}
+                      </h2>
+                      <h3
+                      className="text-lg font-semibold text-gray-500 truncate"
+                      style={{
+                        fontSize: 'clamp(0.6rem, 1vw, 0.7rem)', // Ajusta dinámicamente 
+                        lineHeight: '1.2',
+                        whiteSpace: 'normal', // Permite envolver el texto.
+                        wordWrap: 'break-word', // Divide palabras largas.
+                        overflow: 'hidden', // Evita desbordes.
+                        height: '1rem', // Altura fija para mantener consistencia  //1.5rem
+                      }}
+                      >
+                        {item.category.name}
+                      </h3>
+                    </div>
+                      
                     </button>
                   );
                 }
@@ -544,12 +623,9 @@ export function OrderGrid(props: Props) {
               </button>
             </div>
             <Separator className="my-4" />
-            {/* <div>
-              <Button onClick={()=>addProductSell(selectedProduct)}> elegir</Button>
-            </div> */}
+            
 
             
-    {/* <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"> */}
       <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex items-start gap-6">
@@ -567,10 +643,19 @@ export function OrderGrid(props: Props) {
           <div className="mt-6">
             <h3 className="font-semibold text-lg mb-3">Tamaño</h3>
             <div className="grid grid-cols-3 gap-3">
+              {productPricesApi.length === 0 && (
+                <button
+                className={`p-3 rounded-lg border-2 border-gray-200`}
+              >
+                <div className="font-medium">No existe</div>
+                <div className="text-sm text-gray-600">
+                  Tamaños
+                </div>
+              </button>
+              )}
               {productPricesApi.map((price:any) => (
                 <button
                   key={price.id}
-                  // onClick={() => setSelectedSize(size)}
                   onClick={()=> {
                     setSelectedPrice(price) 
                     setSelectedSizeName(price.size.name)
@@ -584,7 +669,7 @@ export function OrderGrid(props: Props) {
                   <div className="font-medium">{price.size.name}</div>
                   <div className="text-sm text-gray-600">
                     {/* {price.amount.toFixed(2)} € */}
-                    {formatPrice(parseFloat(price.amount.toString()))}
+                    {formatPrice( (parseFloat(price.amount.toString()) /100 ))}
                     {/* {price.amount?.toString()} € */}
                   </div>
                 </button>
@@ -654,12 +739,12 @@ export function OrderGrid(props: Props) {
             </div>
 
             <div className="flex gap-3">
-              <button
+              {/* <button
                 // onClick={onClose}
                 className="flex-1 py-3 px-4 rounded-lg border border-gray-200"
               >
                 Cancelar
-              </button>
+              </button> */}
               <button
                 onClick={handleSubmit}
                 className="flex-1 py-3 px-4 rounded-lg bg-blue-600 text-white font-medium"
@@ -680,7 +765,7 @@ export function OrderGrid(props: Props) {
       </div>
 
       <div className="flex flex-col min-h-[600px] max-h-[800px] rounded-lg bg-background shadow-md hover:shadow-lg p-2 sm:p-4 w-full h-full">
-        <OrderDetail  orders={orders} onDeleteOrder={onDeleteOrder}/>
+        <OrderDetail  orders={orders} onDeleteOrder={onDeleteOrder} sendOrders={sendOrders} isPendingSendOrders={isPendingSendOrders}/>
       </div>
     </>
   );

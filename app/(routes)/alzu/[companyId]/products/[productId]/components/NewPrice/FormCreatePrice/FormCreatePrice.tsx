@@ -14,6 +14,20 @@ import axios from "axios"
 import { FormCreatePriceProps } from "./FormCreatePrice.types"
 import { formCreatePriceSchema } from "./FormCreatePrice.form"
 import { Switch } from "@/components/ui/switch"
+
+function toCents (value: string | number): number {
+
+    // Convertir a número flotante
+    const numericValue = typeof value === "string" ? parseFloat(value) : value;
+
+    if (isNaN(numericValue)) {
+        throw new Error("El valor ingresado no es un número válido.");
+    }
+
+    // Redondear a 2 decimales y convertir a centavos
+    return Math.round(numericValue * 100);
+}
+
 export function FormCreatePrice(props: FormCreatePriceProps) {
 
     const{setOpen,sizes} = props
@@ -25,14 +39,21 @@ export function FormCreatePrice(props: FormCreatePriceProps) {
             productId: params.productId,
             sizeId: "",
             active: true,
-            amount:0,
+            amount: 0,
         }
     })
-
+    const { register, handleSubmit, setValue, watch } = form;
+    // Observar el valor actual del amount
+    // const amount = watch("amount") / 100 || 0;
     const onSubmit = async (values: z.infer<typeof formCreatePriceSchema>) => {
+
+        const processedData = {
+            ...values,
+            amount: toCents(values.amount)
+        }
         
         try {
-            const response = await axios.post(`/api/product/${params.productId}/product-price`,values)
+            const response = await axios.post(`/api/product/${params.productId}/product-price`,processedData)
             console.log("[response]",response.data)
             if(response.data.code === "error"){
                 toast({
@@ -58,6 +79,14 @@ export function FormCreatePrice(props: FormCreatePriceProps) {
             })
         }
     }
+
+    const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        const numericValue = parseFloat(value);
+        if (!isNaN(numericValue)) {
+        setValue("amount", Math.round(numericValue * 100));
+        }
+      };
 
   return (
     <Form {...form}>
@@ -95,14 +124,27 @@ export function FormCreatePrice(props: FormCreatePriceProps) {
                 <FormItem>
                     <FormLabel>Monto</FormLabel>
                     <FormControl>
-                        <Input type="number" placeholder="0" 
-                        value={field.value} // Asegúrate de que el valor se mantenga actualizado
+                        <Input 
+                        
+                        // type="number" placeholder="0" 
+                        value={field.value}
                         onChange={(e) => {
                             const value = e.target.value;
-                            // Convertir a número, si está vacío, establecer en null o en 0 según tu lógica
                             field.onChange(value ? Number(value) : null);
                         }}
-                        // {...field} 
+
+                        type="number" // Usamos "text" para mayor control
+                        placeholder="0.00"
+                        // value={field.value ? (field.value / 100).toFixed(2) : ""}
+                        // onChange={(e)=>{
+                        //     const inputValue = e.target.value;
+                        //     try {
+                        //         const cents = inputValue ? toCents(inputValue) : 0;
+                        //         field.onChange(cents);
+                        //     } catch (error) {
+                        //         console.error("Invalid input:", error)
+                        //     }
+                        // }}
                         />
                     </FormControl>
                     <FormMessage />

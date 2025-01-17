@@ -94,6 +94,42 @@ const data = {
   ],
   navMain: [
     {
+      title: "Vender",
+      url: "#",
+      icon: BookOpen,
+      isActive: true,
+      items: [
+        {
+          title: "Mesas",
+          url: "sell",
+        },
+        {
+          title: "Para llevar",
+          url: "togo",
+        },
+        {
+          title: "Delivery",
+          url: "delivery",
+        },
+      ],
+    },
+    {
+      title: "Ventas",
+      url: "#",
+      icon: BookOpen,
+      isActive: true,
+      items:[
+        {
+          title: "Pedidos",
+          url:"orders"
+        },
+        {
+          title:"Ventas...",
+          url:"#"
+        }
+      ]
+    },
+    {
       title: "Administración",
       url: "#",
       icon: SquareTerminal,
@@ -111,6 +147,14 @@ const data = {
           title: "Tamaños",
           url: "/sizes",
         },
+      ],
+    },
+    {
+      title: "Salon",
+      url:"#",
+      icon: SquareTerminal,
+      isActive: true,
+      items:[
         {
           title: "Salas",
           url: "/rooms",
@@ -119,11 +163,79 @@ const data = {
           title: "Mesas",
           url: "/tables",
         },
-        // {
-        //   title: "Settings",
-        //   url: "#",
-        // },
-      ],
+      ]
+    },
+    {
+      title:"Clientes",
+      url:"#",
+      icon: SquareTerminal,
+      isActive: true,
+      items:[
+        {
+          title:"Clientes...",
+          url:"#"
+        },
+        {
+          title:"Fidelización...",
+          url:"#"
+        }
+      ]
+    },
+    {
+      title:"Personal",
+      url:"#",
+      icon: SquareTerminal,
+      isActive: true,
+      items:[
+        {
+          title:"Usuarios y Roles...",
+          url:"#"
+        },
+        {
+          title:"Turnos y Asistencia...",
+          url:"#"
+        }
+      ]
+    },
+    {
+      title:"Reportes y Análisis",
+      url:"#",
+      icon: SquareTerminal,
+      isActive: true,
+      items:[
+        {
+          title:"Ventas por Día/Mes/Año...",
+          url:"#"
+        },
+        {
+          title:"Productos Más Vendidos...",
+          url:"#"
+        },
+        {
+          title:"Desempeño del Personal...",
+          url:"#"
+        }
+      ]
+    },
+    {
+      title:"Configuraciones",
+      url:"#",
+      icon: SquareTerminal,
+      isActive: true,
+      items:[
+        {
+          title:"Parametros Generales...",
+          url:"#"
+        },
+        {
+          title:"Impresion de Tickets...",
+          url:"#"
+        },
+        {
+          title:"Integraciones",
+          url:"#"
+        }
+      ]
     },
     {
       title: "Cocina",
@@ -134,55 +246,9 @@ const data = {
           title: "Bandeja",
           url: "#",
         },
-        {
-          title: "Bandeja",
-          url: "#",
-        },
-        // {
-        //   title: "Explorer",
-        //   url: "#",
-        // },
-        // {
-        //   title: "Quantum",
-        //   url: "#",
-        // },
       ],
     },
-    {
-      title: "Meseros",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Vender",
-          url: "sell",
-        },
-        {
-          title: "Vender2",
-          url: "sell2",
-        },
-        {
-          title: "Mesas",
-          url: "mesas",
-        },
-        {
-          title: "Atención",
-          url: "atencion",
-        },
-        // {
-        //   title: "Get Started",
-        //   url: "#",
-        // },
-        // {
-        //   title: "Tutorials",
-        //   url: "#",
-        // },
-        // {
-        //   title: "Changelog",
-        //   url: "#",
-        // },
-      ],
-    },
+    
     // {
     //   title: "Settings",
     //   url: "#",
@@ -363,7 +429,7 @@ export function AppSidebar({
                       <CollapsibleTrigger asChild>
                         <SidebarMenuButton tooltip={item.title}>
                           {item.icon && <item.icon />}
-                          <span>{item.title}</span>
+                          <span className="text-lg">{item.title}</span>
                           <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                         </SidebarMenuButton>
                       </CollapsibleTrigger>
@@ -371,7 +437,7 @@ export function AppSidebar({
                         <SidebarMenuSub>
                           {item.items?.map((subItem) => (
                             <SidebarMenuSubItem key={subItem.title}>
-                              <SidebarMenuSubButton asChild>
+                              <SidebarMenuSubButton size="md" asChild>
                                 <Link href={`/alzu/${companySelected.id}/${subItem.url}`}>
                                   <span>{subItem.title}</span>
                                 </Link>

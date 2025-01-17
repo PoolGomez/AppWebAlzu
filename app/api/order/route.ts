@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { StatusOrder } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
 export async function POST (req: Request){
@@ -16,23 +17,20 @@ export async function POST (req: Request){
         const order = await db.order.create({
             data:{
                 companyId:data.companyId,
-                room: data.room,
+                roomId: data.roomId,
                 tableId: data.tableId,
-                table: data.table,
                 productId: data.productId,
-                productName: data.productName,
-                sizeName:data.sizeName,
-                priceAmount: data.priceAmount,
+                sizeName: data.sizeName,
                 quantity: data.quantity,
-                total: data.total,
-                note: data.note,
-                status: data.status,
+                price: data.price,
+                notes: data.notes,
+                status: data.status
             },
         });
         return NextResponse.json(order);
 
     } catch (error) {
-        console.log("[POST ORDER]", error);
+        console.log("[POST CREATE ORDER]", error);
         return new NextResponse("Internal Error", { status: 500});
     }
 }
@@ -58,12 +56,17 @@ export async function GET (req: Request){
         const orders = await db.order.findMany({
             where: {
                 tableId: tableId,
-                status: status as StatusOrder
+                // status: status as StatusOrder
+                NOT:{
+                    status: status as StatusOrder
+                }
             },
-
-            // orderBy: {
-            //     createdAt: "asc",
-            // },
+            orderBy: {
+                createdAt: "desc",
+            },
+            include:{
+                product: true
+            }
 
 
             // where: {
@@ -75,6 +78,7 @@ export async function GET (req: Request){
 
 
         })
+        console.log("orders:",orders)
         return NextResponse.json(orders)
     } catch (error) {
         console.log("[GET ORDER]", error);
@@ -82,6 +86,35 @@ export async function GET (req: Request){
     }
 }
 
+//actualiza los pedidos de estado created a progress de la mesa seleccionada
+export async function PATCH(req: Request){
+    try {
+        
+        const {tableId, companyId} = await req.json();
+        const session = await auth();
+
+        if(!session){
+            return new NextResponse("Unauthorized", {status: 401}); 
+        }
+
+        const orders = await db.order.updateMany({
+            where:{
+                tableId: tableId,
+                status: StatusOrder.created
+            },
+            data:{
+                status: StatusOrder.progress,
+            },
+        });
+
+        revalidatePath(`/alzu/${companyId}/sell`)
+        return NextResponse.json(orders);
+
+    } catch (error) {
+        console.log("[PATCH ORDER]", error);
+        return new NextResponse("Internal Error", {status:500});
+    }
+}
 
 
 

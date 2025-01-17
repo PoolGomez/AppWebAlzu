@@ -24,14 +24,20 @@ export function FormPrice(props: FormPriceProps) {
             productId: params.productId,
             sizeId: productPrice.sizeId,
             active: productPrice.active,
-            amount: Number(productPrice.amount),
+            amount: Number(productPrice.amount) / 100,
         }
     })
 
     const onSubmit = async (values: z.infer<typeof formProductPriceSchema>) => {
         console.log("On SUBMIT")
+
+        const processedData = {
+            ...values,
+            amount: Math.round(values.amount * 100)
+        }
+
         try {
-            axios.patch(`/api/product-price/${productPrice.id}`,values)
+            axios.patch(`/api/product-price/${productPrice.id}`,processedData)
             toast({
                 title:"✅ Correcto",
                 description:"Precio actualizado exitosamente"

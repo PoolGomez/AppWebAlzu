@@ -53,7 +53,7 @@ export async function ListPrices(props:ListPricesProps) {
                 <div className="grid grid-cols-4 gap-x-3 items-center justify-between px-4">
                     
                     <p className="text-xs lg:text-sm">{price.size.name}</p>
-                    <p className="text-sm lg:text-sm">{formatPrice(price.amount)}</p>
+                    <p className="text-sm lg:text-sm">{formatPrice(price.amount / 100)}</p>
                     {/* <p>{ price.active === true ? <Badge variant="outline">Si</Badge> : <Badge variant="destructive">No</Badge>}</p> */}
                     <span>{ price.active === true ? <Badge variant="outline">Si</Badge> : <Badge variant="destructive">No</Badge>}</span>
                     {/* <p>si</p> */}

@@ -1,4 +1,6 @@
 {
+  
+  
   "compilerOptions": {
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
@@ -19,7 +21,7 @@
     ],
     "paths": {
       "@/*": ["./*"]
-    }
+    },
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/(routes)/components/GraphicSuscribers", "app/(routes)/alzu/[companyId]/fabric/SnappingHelpers.jsx", "app/(routes)/alzu/[companyId]/fabric/Settings.jsx", "app/(routes)/alzu/[companyId]/fabric/page.jsx", 
   // "app/(routes)/alzu/[companyId]/fabric/page.jsx"

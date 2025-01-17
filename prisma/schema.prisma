@@ -98,6 +98,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
  
   @@id([provider, providerAccountId])
+  @@index([userId])
 }
  
 // model Session {
@@ -126,6 +127,7 @@ model Category{
   companyId String
   products Product[]
   createdAt DateTime @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model Product{
@@ -138,8 +140,11 @@ model Product{
   categoryId String
   productPrices ProductPrice[]
   createdAt DateTime @default(now())
+  updatedAt   DateTime  @updatedAt
   category Category? @relation(fields:[categoryId], references: [id], onDelete: Cascade)
   @@index([categoryId])
+  // OrderItem OrderItem[]
+  Order Order[]
 }
 
 model Size{
@@ -149,6 +154,7 @@ model Size{
   active Boolean
   productPrices ProductPrice[]
   createdAt DateTime @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model ProductPrice{
@@ -156,7 +162,8 @@ model ProductPrice{
   productId String
   sizeId String
   active Boolean
-  amount Decimal @db.Decimal(10, 2)
+  // amount Decimal @db.Decimal(10, 2)
+  amount Int // en centavos
   product Product? @relation(fields:[productId], references: [id], onDelete: Cascade)
   size Size? @relation(fields:[sizeId], references: [id], onDelete: Cascade)
   @@index([sizeId])
@@ -185,6 +192,9 @@ model Table{
   column Int
   row Int
   createdAt DateTime @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  Order Order[]
 }
 
 model Room {
@@ -195,28 +205,84 @@ model Room {
   companyId String
   active Boolean
   createdAt DateTime @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  Order Order[]
 }
 
-enum StatusOrder{
+enum StatusOrder {
   created
-  prepared
-  delivered
+  progress
+  served
   paid
   canceled
 }
 
+// model Order {
+//   id String @id @default(uuid())
+//   companyId String
+//   roomId String
+//   tableId String
+//   total Decimal @db.Decimal(10, 2)
+//   notes String
+//   status StatusOrder
+
+//   room Room @relation(fields:[roomId], references:[id])
+//   table Table @relation(fields:[tableId], references:[id])
+
+//   createdAt DateTime @default(now())
+//   updatedAt   DateTime  @updatedAt
+
+//   OrderItem OrderItem[]
+
+//   @@index([roomId])
+//   @@index([tableId])
+// }
+
+
+
 model Order {
   id String @id @default(uuid())
   companyId String
-  room String
+  roomId String
   tableId String
-  table String
   productId String
-  productName String
   sizeName String
-  priceAmount Decimal @db.Decimal(10, 2)
   quantity Int
-  total Decimal @db.Decimal(10, 2)
-  note String
+  price Int // en centavos
+  notes String
   status StatusOrder
+
+  room Room @relation(fields:[roomId], references:[id])
+  table Table @relation(fields:[tableId], references:[id])
+  product Product @relation(fields:[productId], references:[id])
+
+  createdAt DateTime @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // OrderItem OrderItem[]
+
+  @@index([roomId])
+  @@index([tableId])
+  @@index([productId])
 }
+
+// model OrderItem {
+//   id String @id @default(uuid())
+//   orderId String
+//   productId String
+//   sizeName String
+//   quantity Int
+//   price Decimal
+//   notes String
+//   status StatusOrder
+
+//   order Order @relation(fields:[orderId], references:[id])
+//   product Product @relation(fields:[productId], references:[id])
+  
+//   createdAt DateTime @default(now())
+//   updatedAt   DateTime  @updatedAt
+
+//   @@index([orderId])
+//   @@index([productId])
+// }
