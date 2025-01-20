@@ -1,302 +1,288 @@
 "use client";
 import { Separator } from "@/components/ui/separator";
-import { Category, Order, Product, ProductPrice, Room, StatusOrder, Table } from "@prisma/client";
-import { ChevronLeft, ChevronRight, Minus, Plus } from "lucide-react";
-import { useEffect, useState, useTransition } from "react";
-import { OrderDetail } from "../OrderDetail";
-import axios from "axios";
-import { formatPrice } from "@/lib/formatPrice";
-import { toast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
 import { OrderProducto } from "@/domain";
+import { toast } from "@/hooks/use-toast";
+import { formatPrice } from "@/lib/formatPrice";
+import { Category, Product, ProductPrice, Room, StatusOrder, Table } from "@prisma/client";
+import axios from "axios";
+import { ChevronLeft, ChevronRight, LoaderCircle, Minus, Plus } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
+import { OrderDetail } from "./OrderDetail";
 
 type Props = {
-  companyId:string,
-  // rooms: Room[];
-  // tables: Table[];
-  // categories: Category[];
-  // products: Product[];
+    companyId:string,
 };
 
-export function OrderGrid(props: Props) {
-  const { companyId,
-    //  rooms, tables, categories, products 
-    } = props;
-  // const [columns, setColumns] = useState(room.columns);
-  // const [rows, setRows] = useState(room.rows);
+export function OrderContainer(props: Props) {
+    const { companyId } = props;
 
-  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
-  const [selectedTable, setSelectedTable] = useState<Table | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [selectedPrice, setSelectedPrice] = useState<ProductPrice | null>(null);
-  const [selectedSizeName, setSelectedSizeName] = useState<String | null> (null);
-  const [orders, setOrders] = useState<OrderProducto[]>([]);
+    const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+    const [selectedTable, setSelectedTable] = useState<Table | null>(null);
+    const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+    const [selectedPrice, setSelectedPrice] = useState<ProductPrice | null>(null);
+    const [selectedSizeName, setSelectedSizeName] = useState<String | null> (null);
+    const [orders, setOrders] = useState<OrderProducto[]>([]);
 
 
-  const [quantity, setQuantity] = useState(1);
-  const [notes, setNotes] = useState('');
-  const [total, setTotal] = useState(0);
+    const [quantity, setQuantity] = useState(1);
+    const [notes, setNotes] = useState('');
+    
 
 
-  const [roomsApi, setRoomsApi] = useState<Room[]>([]);
-  const [tablesApi, setTablesApi] = useState<Table[]>([]);
-  const [ categoriesApi, setCategoriesApi] = useState<Category[]>([]);
-  const [ productsApi, setProductsApi] = useState<Product[]>([]);
-  const [productPricesApi, setProductPricesApi] = useState<ProductPrice[]>([]);
+    const [roomsApi, setRoomsApi] = useState<Room[]>([]);
+    const [tablesApi, setTablesApi] = useState<Table[]>([]);
+    const [ categoriesApi, setCategoriesApi] = useState<Category[]>([]);
+    const [ productsApi, setProductsApi] = useState<Product[]>([]);
+    const [productPricesApi, setProductPricesApi] = useState<ProductPrice[]>([]);
 
-  const [isPending, startTransition] = useTransition();
-  const [isPendingSendOrders, startTransitionSendOrders] = useTransition();
-  const router = useRouter();
+    const [isPending, startTransition] = useTransition();
+    const [isPendingSendOrders, startTransitionSendOrders] = useTransition();
+    const router = useRouter();
 
-  const calculateTotal = () => {
-    if(selectedPrice){
-      const priceFinal = (parseFloat(selectedPrice.amount.toString()) / 100 ) * quantity;
-      return priceFinal;
-    }
-    return 0;
-
-    // const basePrice = selectedSize.price;
-    // const addOnsTotal = selectedAddOns.reduce((sum, addOn) => sum + addOn.price, 0);
-    // return (basePrice + addOnsTotal) * quantity;
-
-  };
-
-  const handleSubmit = () => {
-    startTransition(async () => {
-      try {
-        console.log("selectedPrice:", selectedPrice?.amount)
-        if(!selectedPrice?.amount){
-          console.log("Debe seleccionar un precio")
-          toast({
-            title: "Warning",
-            description: "Debe seleccionar un precio para continuar",
-            variant: "destructive",
-          });
-          return
+    const calculateTotal = () => {
+        if(selectedPrice){
+          const priceFinal = (parseFloat(selectedPrice.amount.toString()) / 100 ) * quantity;
+          return priceFinal;
         }
-          const response = await axios.post("/api/order", {
-            roomId: selectedRoom?.id,
-            companyId: companyId,
-            tableId: selectedTable?.id,
-            productId: selectedProduct?.id,
-            sizeName: selectedSizeName,
-            price: Number(selectedPrice?.amount),
-            quantity: quantity,
-            notes: notes,
-            status: "created"
-          });
-          setSelectedProduct(null)
-          setSelectedPrice(null)
-          getOrders();
-          toast({
-          title: "✅ Correcto",
-          description: "Pedido agregado exitosamente",
-          });
-          router.refresh();
-      } catch (error) {
-        console.log("error:",error)
-          toast({
-            title: "Error",
-            description: "Error al crear el pedido",
-            variant: "destructive",
+        return 0;
+    };
+
+    const handleSubmit = () => {
+        startTransition(async () => {
+          try {
+            console.log("selectedPrice:", selectedPrice?.amount)
+            if(!selectedPrice?.amount){
+              console.log("Debe seleccionar un precio")
+              toast({
+                title: "Warning",
+                description: "Debe seleccionar un precio para continuar",
+                variant: "destructive",
+              });
+              return
+            }
+              const response = await axios.post("/api/order", {
+                roomId: selectedRoom?.id,
+                companyId: companyId,
+                tableId: selectedTable?.id,
+                productId: selectedProduct?.id,
+                sizeName: selectedSizeName,
+                price: Number(selectedPrice?.amount),
+                quantity: quantity,
+                notes: notes,
+                status: "created"
+              });
+              setSelectedProduct(null)
+              setSelectedPrice(null)
+              getOrders();
+              toast({
+              title: "✅ Correcto",
+              description: "Pedido agregado exitosamente",
+              });
+              router.refresh();
+          } catch (error) {
+            console.log("error:",error)
+              toast({
+                title: "Error",
+                description: "Error al crear el pedido",
+                variant: "destructive",
+              });
+          }
           });
       }
-      });
-  }
-
-
-  useEffect(() => {
-    async function fetchRooms() {
-      try {
-        const {data} = await axios.get("/api/room",{
-          params: {
-            companyId: companyId
+    
+    
+      useEffect(() => {
+        async function fetchRooms() {
+          try {
+            const {data} = await axios.get("/api/room",{
+              params: {
+                companyId: companyId
+              }
+            });
+            setRoomsApi(data);
+          } catch (error) {
+            console.error('Error loading rooms:', error);
+          }
+          
+        }
+        fetchRooms();
+      }, [])
+    
+      useEffect(() => {
+        if (!selectedRoom) return;
+        async function fetchTables() {
+          try {
+            const {data} = await axios.get("/api/table",{
+              params:{
+                roomId: selectedRoom?.id
+              }
+            });
+            setTablesApi(data);
+          } catch (error) {
+            console.error('Error loading tables:', error);
+          }
+        }
+        fetchTables();
+      }, [selectedRoom])
+    
+      async function getOrders(){
+        try{
+          const { data } = await axios.get("/api/order",{
+            params:{
+              tableId: selectedTable?.id,
+              status: StatusOrder.paid
+            }
+          });
+          setOrders(data)
+        }catch(error){
+          console.error('Error loading orders:', error);
+        }
+      }
+    
+      function sendOrders(){
+        startTransitionSendOrders(async()=>{
+          try {
+            // orders.forEach(async (order) => {
+            //   await axios.patch(`/api/order`, {
+            //     tableId: selectedTable.id
+            //     // status: StatusOrder.progress
+            //   });
+            // })
+            await axios.patch(`/api/order`, {
+              companyId: companyId,
+              tableId: selectedTable?.id
+              // status: StatusOrder.progress
+            });
+            
+            // toast({
+            //   title: "✅ Correcto",
+            //   description: "Pedidos enviados exitosamente",
+            // });
+            
+            // router.refresh();
+          } catch (error) {
+            console.log(error);
+            toast({
+              title: "Error",
+              description: "Error al enviar el pedido",
+              variant: "destructive",
+            });
+          }finally{
+            // setOrders([])
+            getOrders();
+            toast({
+              title: "✅ Correcto",
+              description: "Pedidos enviados exitosamente",
+            });
+            // initialValues.current = formValues;
+            router.refresh();
+          }
+        })
+        
+      }
+    
+      const onDeleteOrder = async (orderId : string) => {
+        startTransition(async () => {
+          try {
+            // console.log("order antes:", orders)
+            // setOrders((prevOrders) => prevOrders.filter((order) => order.id !== orderId));
+            await axios.delete(`/api/order/${orderId}`);
+            toast({
+              title: "✅ Correcto",
+              description:"producto borrado del pedido exitosamente"
+            });
+            
+    
+            await getOrders()
+            // router.refresh();
+            console.log("order despues:", orders)
+          } catch (error) {
+            console.log(error);
+            toast({
+              title: "Error",
+              description:"Error al borrar el producto del pedido",
+              variant: "destructive",
+            });
           }
         });
-        setRoomsApi(data);
-      } catch (error) {
-        console.error('Error loading rooms:', error);
-      }
-      
-    }
-    fetchRooms();
-  }, [])
-
-  useEffect(() => {
-    if (!selectedRoom) return;
-    async function fetchTables() {
-      try {
-        const {data} = await axios.get("/api/table",{
-          params:{
-            roomId: selectedRoom?.id
+      };
+    
+      useEffect(() => {
+        if (!selectedTable) {
+          setOrders([])
+          return;
+        } 
+        
+        async function fetchCategories() {
+          try {
+            const {data} = await axios.get("/api/category",{
+              params:{
+                companyId: companyId 
+              }
+            });
+            setCategoriesApi(data);
+          } catch (error) {
+            console.error('Error loading categories:', error);
           }
-        });
-        setTablesApi(data);
-      } catch (error) {
-        console.error('Error loading tables:', error);
-      }
-    }
-    fetchTables();
-  }, [selectedRoom])
-
-  async function getOrders(){
-    try{
-      const { data } = await axios.get("/api/order",{
-        params:{
-          tableId: selectedTable?.id,
-          status: StatusOrder.paid
         }
-      });
-      setOrders(data)
-    }catch(error){
-      console.error('Error loading orders:', error);
-    }
-  }
-
-  function sendOrders(){
-    startTransitionSendOrders(async()=>{
-      try {
-        // orders.forEach(async (order) => {
-        //   await axios.patch(`/api/order`, {
-        //     tableId: selectedTable.id
-        //     // status: StatusOrder.progress
-        //   });
-        // })
-        await axios.patch(`/api/order`, {
-          companyId: companyId,
-          tableId: selectedTable?.id
-          // status: StatusOrder.progress
-        });
-        
-        // toast({
-        //   title: "✅ Correcto",
-        //   description: "Pedidos enviados exitosamente",
-        // });
-        
-        // router.refresh();
-      } catch (error) {
-        console.log(error);
-        toast({
-          title: "Error",
-          description: "Error al enviar el pedido",
-          variant: "destructive",
-        });
-      }finally{
-        // setOrders([])
+        fetchCategories();
         getOrders();
-        toast({
-          title: "✅ Correcto",
-          description: "Pedidos enviados exitosamente",
-        });
-        // initialValues.current = formValues;
-        router.refresh();
-      }
-    })
+      }, [selectedTable]);
     
-  }
-
-  const onDeleteOrder = async (orderId : string) => {
-    startTransition(async () => {
-      try {
-        // console.log("order antes:", orders)
-        // setOrders((prevOrders) => prevOrders.filter((order) => order.id !== orderId));
-        await axios.delete(`/api/order/${orderId}`);
-        toast({
-          title: "✅ Correcto",
-          description:"producto borrado del pedido exitosamente"
-        });
-        
-
-        await getOrders()
-        // router.refresh();
-        console.log("order despues:", orders)
-      } catch (error) {
-        console.log(error);
-        toast({
-          title: "Error",
-          description:"Error al borrar el producto del pedido",
-          variant: "destructive",
-        });
-      }
-    });
-  };
-
-  useEffect(() => {
-    if (!selectedTable) {
-      setOrders([])
-      return;
-    } 
+      useEffect(() => {
+        if (!selectedCategory) return;
+        async function fetchProducts() {
+          try {
+            const {data} = await axios.get("/api/product",{
+              params:{
+                categoryId: selectedCategory?.id 
+              }
+            });
+            setProductsApi(data);
+          } catch (error) {
+            console.error('Error loading products:', error);
+          }
+        }
+        fetchProducts();
+      }, [selectedCategory])
+      
+      useEffect(() => {
+        if (!selectedProduct) return;
+        async function fetchProductPrices() {
+          try {
+            const {data} = await axios.get("/api/product-price",{
+              params:{
+                productId: selectedProduct?.id 
+              }
+            });
+            setProductPricesApi(data);
+            setSelectedPrice(data[0]);
+            setSelectedSizeName(data[0].size.name);
+            
+            
+          } catch (error) {
+            console.error('Error loading product-prices:', error);
+          }
+        }
+        fetchProductPrices();
+      }, [selectedProduct])
     
-    async function fetchCategories() {
-      try {
-        const {data} = await axios.get("/api/category",{
-          params:{
-            companyId: companyId 
-          }
-        });
-        setCategoriesApi(data);
-      } catch (error) {
-        console.error('Error loading categories:', error);
-      }
-    }
-    fetchCategories();
-    getOrders();
-  }, [selectedTable]);
-
-  useEffect(() => {
-    if (!selectedCategory) return;
-    async function fetchProducts() {
-      try {
-        const {data} = await axios.get("/api/product",{
-          params:{
-            categoryId: selectedCategory?.id 
-          }
-        });
-        setProductsApi(data);
-      } catch (error) {
-        console.error('Error loading products:', error);
-      }
-    }
-    fetchProducts();
-  }, [selectedCategory])
-  
-  useEffect(() => {
-    if (!selectedProduct) return;
-    async function fetchProductPrices() {
-      try {
-        const {data} = await axios.get("/api/product-price",{
-          params:{
-            productId: selectedProduct?.id 
-          }
-        });
-        setProductPricesApi(data);
-        setSelectedPrice(data[0]);
-        setSelectedSizeName(data[0].size.name);
-        
-        
-      } catch (error) {
-        console.error('Error loading product-prices:', error);
-      }
-    }
-    fetchProductPrices();
-  }, [selectedProduct])
-
-
-  const handleBack = () => {
-    if(selectedProduct){
-      setSelectedProduct(null);
-    }else if (selectedCategory) {
-      setSelectedCategory(null);
-    } else if (selectedTable) {
-      setSelectedTable(null);
-    } else if (selectedRoom) {
-      setSelectedRoom(null);
-    }
-  };
-
-  
+    
+      const handleBack = () => {
+        if(selectedProduct){
+          setSelectedProduct(null);
+        }else if (selectedCategory) {
+          setSelectedCategory(null);
+        } else if (selectedTable) {
+          setSelectedTable(null);
+        } else if (selectedRoom) {
+          setSelectedRoom(null);
+        }
+      };
+    
 
   return (
     <>
@@ -748,7 +734,11 @@ export function OrderGrid(props: Props) {
               <button
                 onClick={handleSubmit}
                 className="flex-1 py-3 px-4 rounded-lg bg-blue-600 text-white font-medium"
+                disabled={isPending}
               >
+                {isPending && (
+                    <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>
+                )}
                 Añadir al pedido
               </button>
             </div>
@@ -765,8 +755,8 @@ export function OrderGrid(props: Props) {
       </div>
 
       <div className="flex flex-col min-h-[600px] max-h-[800px] rounded-lg bg-background shadow-md hover:shadow-lg p-2 sm:p-4 w-full h-full">
-        <OrderDetail  orders={orders} onDeleteOrder={onDeleteOrder} sendOrders={sendOrders} isPendingSendOrders={isPendingSendOrders}/>
+        <OrderDetail  orders={orders} onDeleteOrder={onDeleteOrder} sendOrders={sendOrders} isPendingSendOrders={isPendingSendOrders} table={selectedTable}/>
       </div>
     </>
-  );
+  )
 }

@@ -1,21 +1,25 @@
+
 "use client"
 import { OrderProducto } from "@/domain";
 import { formatPrice } from "@/lib/formatPrice";
-import { StatusOrder } from "@prisma/client";
+import { StatusOrder, Table } from "@prisma/client";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import axios from "axios";
 import { CookingPot, Download, LoaderCircle, Printer, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { DocumentoPdf } from "./DocumentoPdf";
+import { DocumentoPdf } from "./DocumentPdf";
+
+
 
 export  function OrderDetail(
-  {orders, onDeleteOrder,sendOrders, isPendingSendOrders}:
+  {orders, onDeleteOrder,sendOrders, isPendingSendOrders, table}:
   {
     orders: OrderProducto[], 
     onDeleteOrder: (orderId: string)=>void,
     sendOrders: ()=>void,
-    isPendingSendOrders: boolean
+    isPendingSendOrders: boolean,
+    table: Table | null
   }) {
   const [ totalOrder , setTotalOrder ] = useState(0);
   const [ countOrderCreated, setCountOrderCreated] = useState(false)
@@ -68,9 +72,10 @@ export  function OrderDetail(
                 <Printer />
                 <PDFDownloadLink
                     // document={<DocumentoPdf {...data} />}
-                    document={<DocumentoPdf 
+                    document={<DocumentoPdf
                       // companyName="Empresa" 
                       orderId="0001"
+                      table={table}
                       items={orders}
                       // total={totalOrder} 
                       />}
@@ -202,10 +207,3 @@ export  function OrderDetail(
   )
 }
 
-
-{/* <div>
-      <h2>Pedido</h2>
-      {orders.map((item)=>(
-        <Button key={item.id}>{item.productName}</Button>
-      ))}
-    </div> */}
