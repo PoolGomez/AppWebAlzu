@@ -1,5 +1,7 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { StatusOrder } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
 export async function POST (req: Request){
@@ -23,6 +25,16 @@ export async function POST (req: Request){
                 status: data.status
             },
         });
+        //actualizar el precio total de la orden
+        await db.order.update({
+            where:{
+                id: data.orderId
+            },
+            data:{
+                total: data.newTotal
+            }
+        })
+
         return NextResponse.json(order);
 
     } catch (error) {
@@ -67,5 +79,34 @@ export async function GET (req: Request){
     } catch (error) {
         console.log("[GET ORDER-ITEM]", error);
         return new NextResponse("Internal Error", { status: 500});
+    }
+}
+
+
+export async function PATCH(req: Request){
+    try {
+        
+        const {orderId, companyId} = await req.json();
+        const session = await auth();
+
+        if(!session){
+            return new NextResponse("Unauthorized", {status: 401}); 
+        }
+
+        const orders = await db.orderItem.updateMany({
+            where:{
+                orderId: orderId,
+            },
+            data:{
+                status: StatusOrder.progress,
+            },
+        });
+
+        // revalidatePath(`/alzu/${companyId}/sell`)
+        return NextResponse.json(orders);
+
+    } catch (error) {
+        console.log("[PATCH ORDER-ITEM]", error);
+        return new NextResponse("Internal Error", {status:500});
     }
 }

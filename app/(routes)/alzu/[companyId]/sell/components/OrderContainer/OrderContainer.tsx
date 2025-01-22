@@ -1,9 +1,9 @@
 "use client";
 import { Separator } from "@/components/ui/separator";
-import { OrderProducto } from "@/domain";
+import { OrderFull } from "@/domain";
 import { toast } from "@/hooks/use-toast";
 import { formatPrice } from "@/lib/formatPrice";
-import { Category, Product, ProductPrice, Room, StatusOrder, Table } from "@prisma/client";
+import { Category, Product, ProductPrice, Room, StatusOrder, StatusTable, Table } from "@prisma/client";
 import axios from "axios";
 import { ChevronLeft, ChevronRight, LoaderCircle, Minus, Plus } from "lucide-react";
 import Image from "next/image";
@@ -24,11 +24,12 @@ export function OrderContainer(props: Props) {
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const [selectedPrice, setSelectedPrice] = useState<ProductPrice | null>(null);
     const [selectedSizeName, setSelectedSizeName] = useState<String | null> (null);
-    const [orders, setOrders] = useState<OrderProducto[]>([]);
+    const [order, setOrder] = useState<OrderFull | null>(null);
 
 
     const [quantity, setQuantity] = useState(1);
     const [notes, setNotes] = useState('');
+    const [total, setTotal] = useState(0);
     
 
 
@@ -45,14 +46,17 @@ export function OrderContainer(props: Props) {
     const calculateTotal = () => {
         if(selectedPrice){
           const priceFinal = (parseFloat(selectedPrice.amount.toString()) / 100 ) * quantity;
+        //   setTotal(priceFinal)
           return priceFinal;
         }
+        // setTotal(0)
         return 0;
     };
 
     const handleSubmit = () => {
         startTransition(async () => {
           try {
+
             console.log("selectedPrice:", selectedPrice?.amount)
             if(!selectedPrice?.amount){
               console.log("Debe seleccionar un precio")
@@ -63,17 +67,53 @@ export function OrderContainer(props: Props) {
               });
               return
             }
-              const response = await axios.post("/api/order", {
-                roomId: selectedRoom?.id,
-                companyId: companyId,
-                tableId: selectedTable?.id,
-                productId: selectedProduct?.id,
-                sizeName: selectedSizeName,
-                price: Number(selectedPrice?.amount),
-                quantity: quantity,
-                notes: notes,
-                status: "created"
-              });
+
+            if(!order){
+                //crear order si no existe
+                await axios.post("/api/order", {
+                    roomId: selectedRoom?.id,
+                    companyId: companyId,
+                    tableId: selectedTable?.id,
+                    total: selectedPrice.amount * quantity,
+                    notes: "",
+                    status: "created",
+                    items: [
+                        {
+                            productId: selectedProduct?.id, 
+                            sizeName: selectedSizeName,
+                            quantity: quantity,
+                            price: Number(selectedPrice?.amount),
+                            notes: notes,
+                            status: "created"
+                        }
+                    ]
+                  });
+                  if(selectedTable){
+                    setSelectedTable( (prevState: any) => ({
+                      ...prevState,
+                      status: StatusTable.occupied
+                    }))
+                  }
+                  
+            }else{
+                //crear el orderItem a la order existente
+                await axios.post("/api/order-item",{
+                    orderId : order.id,
+                    productId: selectedProduct?.id,
+                    sizeName: selectedSizeName,
+                    quantity: quantity,
+                    price: selectedPrice?.amount,
+                    notes: notes,
+                    status: "created",
+                    //este campo va actualizar el total de la orden
+                    newTotal: order.OrderItem.reduce((acumulador, order) => acumulador + ( order.quantity * order.price ) ,0) + (selectedPrice.amount * quantity)
+                })
+            }
+
+
+
+              
+
               setSelectedProduct(null)
               setSelectedPrice(null)
               getOrders();
@@ -92,6 +132,12 @@ export function OrderContainer(props: Props) {
           }
           });
       }
+
+      useEffect(()=>{
+        if(selectedPrice){
+            setTotal(selectedPrice.amount * quantity)
+        }
+      },[order, quantity, selectedPrice])
     
     
       useEffect(() => {
@@ -133,10 +179,10 @@ export function OrderContainer(props: Props) {
           const { data } = await axios.get("/api/order",{
             params:{
               tableId: selectedTable?.id,
-              status: StatusOrder.paid
+              status: StatusOrder.completed
             }
           });
-          setOrders(data)
+          setOrder(data)
         }catch(error){
           console.error('Error loading orders:', error);
         }
@@ -151,9 +197,9 @@ export function OrderContainer(props: Props) {
             //     // status: StatusOrder.progress
             //   });
             // })
-            await axios.patch(`/api/order`, {
+            await axios.patch(`/api/order-item`, {
               companyId: companyId,
-              tableId: selectedTable?.id
+              orderId: order?.id
               // status: StatusOrder.progress
             });
             
@@ -178,7 +224,7 @@ export function OrderContainer(props: Props) {
               description: "Pedidos enviados exitosamente",
             });
             // initialValues.current = formValues;
-            router.refresh();
+            // router.refresh();
           }
         })
         
@@ -198,7 +244,7 @@ export function OrderContainer(props: Props) {
     
             await getOrders()
             // router.refresh();
-            console.log("order despues:", orders)
+            console.log("order despues:", order)
           } catch (error) {
             console.log(error);
             toast({
@@ -212,7 +258,7 @@ export function OrderContainer(props: Props) {
     
       useEffect(() => {
         if (!selectedTable) {
-          setOrders([])
+          setOrder(null)
           return;
         } 
         
@@ -720,7 +766,8 @@ export function OrderContainer(props: Props) {
               <span className="text-lg font-semibold">Total</span>
               <span className="text-2xl font-bold text-blue-600">
                 {/* {calculateTotal().toFixed(2)} € */}
-                {formatPrice(calculateTotal())}
+                {/* {formatPrice(calculateTotal())} */}
+                {formatPrice(total / 100)}
               </span>
             </div>
 
@@ -755,7 +802,7 @@ export function OrderContainer(props: Props) {
       </div>
 
       <div className="flex flex-col min-h-[600px] max-h-[800px] rounded-lg bg-background shadow-md hover:shadow-lg p-2 sm:p-4 w-full h-full">
-        <OrderDetail  orders={orders} onDeleteOrder={onDeleteOrder} sendOrders={sendOrders} isPendingSendOrders={isPendingSendOrders} table={selectedTable}/>
+        <OrderDetail  orders={order} onDeleteOrder={onDeleteOrder} sendOrders={sendOrders} isPendingSendOrders={isPendingSendOrders} table={selectedTable}/>
       </div>
     </>
   )

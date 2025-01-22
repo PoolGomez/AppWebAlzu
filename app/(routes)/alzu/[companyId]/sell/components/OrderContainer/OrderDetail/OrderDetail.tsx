@@ -1,21 +1,23 @@
 
 "use client"
-import { OrderProducto } from "@/domain";
+import { OrderFull, OrderProducto } from "@/domain";
 import { formatPrice } from "@/lib/formatPrice";
 import { StatusOrder, Table } from "@prisma/client";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import axios from "axios";
+// import { PDFDownloadLink } from "@react-pdf/renderer";
 import { CookingPot, Download, LoaderCircle, Printer, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DocumentoPdf } from "./DocumentPdf";
+import { CreateSale } from "./CreateSale";
+// import { DocumentoPdf } from "./DocumentPdf";
 
 
 
 export  function OrderDetail(
   {orders, onDeleteOrder,sendOrders, isPendingSendOrders, table}:
   {
-    orders: OrderProducto[], 
+    orders: OrderFull | null, 
     onDeleteOrder: (orderId: string)=>void,
     sendOrders: ()=>void,
     isPendingSendOrders: boolean,
@@ -29,34 +31,53 @@ export  function OrderDetail(
   // const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
-    validarPendientes()
-    const getTotal = () => {
+    const validarPendientes = () => {
+        let bandera = false;
+        orders?.OrderItem.forEach((order)=>{
+          if(order.status === StatusOrder.created){
+            bandera = true;
+          }
+        })
+        setCountOrderCreated(bandera);
+      }
+    
+    const calculateTotalOrder = () => {
+
+
+        if(orders){
+            const tota = orders.OrderItem.reduce((acumulador, order) => acumulador + ( order.quantity * (parseFloat(order.price.toString()) / 100) ) ,0)
+            setTotalOrder(tota);
+        }else{
+            setTotalOrder(0)
+        }
+    
+      }
+      validarPendientes()
       calculateTotalOrder()
-    }
-    getTotal();
   }, [orders])
 
 
-  const validarPendientes = () => {
-    let bandera = false;
-    orders.forEach((order)=>{
-      if(order.status === StatusOrder.created){
-        bandera = true;
-      }
-    })
-    setCountOrderCreated(bandera);
-  }
+//   const validarPendientes = () => {
+//     let bandera = false;
+//     orders?.OrderItem.forEach((order)=>{
+//       if(order.status === StatusOrder.created){
+//         bandera = true;
+//       }
+//     })
+//     setCountOrderCreated(bandera);
+//   }
   
 
 
 
-  const calculateTotalOrder = () => {
-    
-    const tota = orders.reduce((acumulador, order) => acumulador + ( order.quantity * (parseFloat(order.price.toString()) / 100) ) ,0)
-    setTotalOrder(tota);
+//   const calculateTotalOrder = () => {
 
-    
-  }
+//     if(orders){
+//         const tota = orders.OrderItem.reduce((acumulador, order) => acumulador + ( order.quantity * (parseFloat(order.price.toString()) / 100) ) ,0)
+//         setTotalOrder(tota);
+//     }
+
+//   }
 
   
   return (
@@ -71,20 +92,13 @@ export  function OrderDetail(
                 <div className="flex gap-4" >
                 <Printer />
                 <PDFDownloadLink
-                    // document={<DocumentoPdf {...data} />}
                     document={<DocumentoPdf
-                      // companyName="Empresa" 
                       orderId="0001"
                       table={table}
                       items={orders}
-                      // total={totalOrder} 
                       />}
-
                     fileName="comanda.pdf"
                   >
-                    {/* {({ loading }) =>
-                      loading ? 'Cargando documento...' : 'Descargar PDF'
-                    } */}
                     <Download />
                   </PDFDownloadLink>
                 </div>
@@ -102,7 +116,7 @@ export  function OrderDetail(
               <div className="mt-8">
                 <div className="flow-root">
                   <ul role="list" className="-my-6 divide-y divide-gray-200">
-                    {orders.map((order)=>(
+                    {orders?.OrderItem.map((order)=>(
                       
                       <li key={order.id} className="flex py-6">
                         <div className="size-24 shrink-0 overflow-hidden rounded-md border border-gray-200">
@@ -177,12 +191,14 @@ export  function OrderDetail(
                 
 
                 <div className="mt-4">
-                  <button
+                  {/* <button
                     className="flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
                     // onClick={print}
                   >
                     Pagar
-                  </button>
+                  </button> */}
+
+                  <CreateSale />
                   
                 </div>
                 {/* <div className="mt-6 flex justify-center text-center text-sm text-gray-500">

@@ -1,4 +1,5 @@
-import { OrderProducto } from '@/domain';
+import { OrderFull, OrderProducto } from '@/domain';
+import { formatNumberId } from '@/lib/formatNumberId';
 import { Table } from '@prisma/client';
 import { Page, Text, Document, StyleSheet, View } from '@react-pdf/renderer';
 
@@ -29,20 +30,20 @@ const styles = StyleSheet.create({
 
 interface ComandaProps {
   orderId: string;
-  items: OrderProducto[];
+  items: OrderFull | null;
   table: Table | null;
 }
 
 export const DocumentoPdf = ({ orderId, items, table }: ComandaProps) => (
     <Document>
     <Page style={styles.page} size={{ width: '80mm', height: 'auto' }}>
-      <Text style={styles.header}>Ticket #{orderId}</Text>
-      <Text style={styles.header}>Mesa {table?.name}</Text>
+      <Text style={styles.header}>Ticket #{items?.number && formatNumberId(items.number)}</Text>
+      <Text style={styles.header}>Mesa {items?.table.name}</Text>
       <Text style={styles.title}>Cant. Descripción</Text>
-      {items.map((item, index) => (
+      {items?.OrderItem.map((item, index) => (
         <View key={index} style={styles.row}>
           <Text style={styles.quantity}>{item.quantity}</Text>
-          <Text style={styles.description}>{item.product.name}</Text>
+          <Text style={styles.description}>{item.product.name} - {item.sizeName}</Text>
         </View>
       ))}
     </Page>

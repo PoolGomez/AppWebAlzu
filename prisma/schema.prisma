@@ -144,7 +144,8 @@ model Product{
   category Category? @relation(fields:[categoryId], references: [id], onDelete: Cascade)
   @@index([categoryId])
   // OrderItem OrderItem[]
-  Order Order[]
+  // Order Order[]
+  OrderItem OrderItem[]
 }
 
 model Size{
@@ -155,6 +156,7 @@ model Size{
   productPrices ProductPrice[]
   createdAt DateTime @default(now())
   updatedAt   DateTime  @updatedAt
+
 }
 
 model ProductPrice{
@@ -213,8 +215,7 @@ model Room {
 enum StatusOrder {
   created
   progress
-  served
-  paid
+  completed
   canceled
 }
 
@@ -243,46 +244,44 @@ enum StatusOrder {
 
 model Order {
   id String @id @default(uuid())
+  number Int? //@default(autoincrement()) @unique
   companyId String
   roomId String
   tableId String
-  productId String
-  sizeName String
-  quantity Int
-  price Int // en centavos
+  total Int 
   notes String
   status StatusOrder
 
   room Room @relation(fields:[roomId], references:[id])
   table Table @relation(fields:[tableId], references:[id])
-  product Product @relation(fields:[productId], references:[id])
 
   createdAt DateTime @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  // OrderItem OrderItem[]
+  updatedAt DateTime @updatedAt
 
   @@index([roomId])
   @@index([tableId])
-  @@index([productId])
+
+  @@unique([companyId, number]) 
+
+  OrderItem OrderItem[]
 }
 
-// model OrderItem {
-//   id String @id @default(uuid())
-//   orderId String
-//   productId String
-//   sizeName String
-//   quantity Int
-//   price Decimal
-//   notes String
-//   status StatusOrder
+model OrderItem {
+  id String @id @default(uuid())
+  orderId String
+  productId String
+  sizeName String
+  quantity Int
+  price Int
+  notes String
+  status StatusOrder
 
-//   order Order @relation(fields:[orderId], references:[id])
-//   product Product @relation(fields:[productId], references:[id])
+  order Order @relation(fields:[orderId], references:[id])
+  product Product @relation(fields:[productId], references:[id])
   
-//   createdAt DateTime @default(now())
-//   updatedAt   DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt   DateTime  @updatedAt
 
-//   @@index([orderId])
-//   @@index([productId])
-// }
+  @@index([orderId])
+  @@index([productId])
+}

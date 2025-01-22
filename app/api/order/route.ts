@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { StatusOrder } from "@prisma/client";
+import { StatusOrder, StatusTable } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
@@ -19,14 +19,30 @@ export async function POST (req: Request){
                 companyId:data.companyId,
                 roomId: data.roomId,
                 tableId: data.tableId,
-                productId: data.productId,
-                sizeName: data.sizeName,
-                quantity: data.quantity,
-                price: data.price,
+                // productId: data.productId,
+                // sizeName: data.sizeName,
+                // quantity: data.quantity,
+                // price: data.price,
                 notes: data.notes,
-                status: data.status
+                status: data.status,
+                total: data.total,
+                
+                OrderItem: {
+                    create: data.items
+                }
             },
         });
+        //cambiar la mesa a ocupado // occupied
+        await db.table.update({
+            where:{
+                id: data.tableId
+            },
+            data:{
+                status: StatusTable.occupied
+            }
+        })
+
+        // revalidatePath(`/alzu/${data.companyId}/sell`)
         return NextResponse.json(order);
 
     } catch (error) {
@@ -35,6 +51,7 @@ export async function POST (req: Request){
     }
 }
 
+// MODULE SELL
 export async function GET (req: Request){
     try {
         const session = await auth();
@@ -53,10 +70,9 @@ export async function GET (req: Request){
             return new NextResponse("Missing status", { status: 400 });
         }
 
-        const orders = await db.order.findMany({
+        const order = await db.order.findFirst({
             where: {
                 tableId: tableId,
-                // status: status as StatusOrder
                 NOT:{
                     status: status as StatusOrder
                 }
@@ -65,21 +81,17 @@ export async function GET (req: Request){
                 createdAt: "desc",
             },
             include:{
-                product: true
+                room: true,
+                table: true,
+                OrderItem: {
+                    include: {
+                        product: true
+                    }
+                }
             }
-
-
-            // where: {
-            //     AND: [
-            //       { tableId: tableId },
-            //       { status: status },
-            //     ],
-            //   },
-
-
         })
-        console.log("orders:",orders)
-        return NextResponse.json(orders)
+        console.log("GET ORDER SELL:",order)
+        return NextResponse.json(order)
     } catch (error) {
         console.log("[GET ORDER]", error);
         return new NextResponse("Internal Error", { status: 500});

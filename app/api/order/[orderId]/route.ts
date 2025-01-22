@@ -53,3 +53,35 @@ export async function PATCH(req: Request, {params}:{params:{orderId: string}}){
         return new NextResponse("Internal Error", {status:500});
     }
 }
+
+
+export async function GET (req: Request, { params}:{params:{orderId: string}}){
+    try {
+        const session = await auth();
+        if(!session){
+            return new NextResponse("Unauthorized", {status: 401}); 
+        }
+
+        const {orderId} = params;
+
+        const order = await db.order.findUnique({
+            where: {
+                id: orderId
+            },
+            include:{
+                room: true,
+                table: true,
+                OrderItem: {
+                    include: {
+                        product: true
+                    }
+                }
+            }
+        })
+        console.log("GET ORDER:", order)
+        return NextResponse.json(order)
+    } catch (error) {
+        console.log("[GET ORDER]", error);
+        return new NextResponse("Internal Error", { status: 500});
+    }
+}

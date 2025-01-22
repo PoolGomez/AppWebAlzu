@@ -2,6 +2,7 @@
 import NextAuth from "next-auth"
 import authConfig from "./auth.config"
 import { NextResponse } from "next/server";
+
  
 const { auth: middleware } = NextAuth(authConfig);
 
@@ -9,7 +10,7 @@ const publicRoutes = [
   "/",
   "/login",
   "/register",
-  "/api/auth/verify-email"
+  "/api/auth/verify-email",
 ];
 export default middleware((req)=>{
   const{nextUrl, auth} = req;
@@ -27,7 +28,7 @@ export const config = {
       '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
       '/(api|trpc)(.*)',
     ],
-  };
+};
 
 // export { default } from'next-auth/middleware'
 // export const config = {
