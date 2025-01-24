@@ -7,8 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { HandCoins } from "lucide-react";
-import { useState } from "react";
+import { StatusOrder, StatusTable } from "@prisma/client";
+import axios from "axios";
+import { HandCoins, LoaderCircle } from "lucide-react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -32,9 +34,10 @@ const formSchema = z.object({
     categoryId: z.string().min(1, { message: 'Seleccione una categoria' }),
   })
 
-export function CreateSale() {
+export function CreateSale({changeStatusTable, orderId}:{changeStatusTable: (estado: StatusTable)=>void , orderId: String | undefined}) {
 
-    const [openModalCreate, setOpenModalCreate] = useState(false)
+    const [openModalCreate, setOpenModalCreate] = useState(false);
+    const [isPendingChangeStatusOrder, startTransitionChangeStatusOrder] = useTransition();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -50,6 +53,23 @@ export function CreateSale() {
 
      function onSubmit(values: z.infer<typeof formSchema>) {
         
+        
+        startTransitionChangeStatusOrder(async()=>{
+            try {
+                await axios.patch(`/api/order/${orderId}`, {
+                   status: StatusOrder.completed
+                });
+              
+          } catch (error) {
+              console.log(error)
+          }finally{
+            changeStatusTable(StatusTable.available)
+            setOpenModalCreate(false)
+          }
+
+        })
+        
+
      }
 
 
@@ -183,11 +203,11 @@ export function CreateSale() {
                             </div>
                             <div className="flex items-center justify-center">
                             <Button type="submit" 
-                            // disabled={isPending}
+                            disabled={isPendingChangeStatusOrder}
                             >
-                                {/* {isPending && (
+                                {isPendingChangeStatusOrder && (
                                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                                )} */}
+                                )}
                                 Crear
                             </Button>
                             </div>

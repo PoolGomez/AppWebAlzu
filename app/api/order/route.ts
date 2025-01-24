@@ -33,14 +33,14 @@ export async function POST (req: Request){
             },
         });
         //cambiar la mesa a ocupado // occupied
-        await db.table.update({
-            where:{
-                id: data.tableId
-            },
-            data:{
-                status: StatusTable.occupied
-            }
-        })
+        // await db.table.update({
+        //     where:{
+        //         id: data.tableId
+        //     },
+        //     data:{
+        //         status: StatusTable.occupied
+        //     }
+        // })
 
         // revalidatePath(`/alzu/${data.companyId}/sell`)
         return NextResponse.json(order);

@@ -2,7 +2,7 @@
 "use client"
 import { OrderFull, OrderProducto } from "@/domain";
 import { formatPrice } from "@/lib/formatPrice";
-import { StatusOrder, Table } from "@prisma/client";
+import { StatusOrder, StatusTable, Table } from "@prisma/client";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 // import { PDFDownloadLink } from "@react-pdf/renderer";
 import { CookingPot, Download, LoaderCircle, Printer, Trash2 } from "lucide-react";
@@ -15,13 +15,14 @@ import { CreateSale } from "./CreateSale";
 
 
 export  function OrderDetail(
-  {orders, onDeleteOrder,sendOrders, isPendingSendOrders, table}:
+  {orders, onDeleteOrder,sendOrders, isPendingSendOrders, table, changeStatusTable}:
   {
     orders: OrderFull | null, 
     onDeleteOrder: (orderId: string)=>void,
     sendOrders: ()=>void,
     isPendingSendOrders: boolean,
-    table: Table | null
+    table: Table | null,
+    changeStatusTable: (estado: StatusTable)=>void
   }) {
   const [ totalOrder , setTotalOrder ] = useState(0);
   const [ countOrderCreated, setCountOrderCreated] = useState(false)
@@ -198,7 +199,7 @@ export  function OrderDetail(
                     Pagar
                   </button> */}
 
-                  <CreateSale />
+                  <CreateSale changeStatusTable={changeStatusTable} orderId={orders?.id}/>
                   
                 </div>
                 {/* <div className="mt-6 flex justify-center text-center text-sm text-gray-500">

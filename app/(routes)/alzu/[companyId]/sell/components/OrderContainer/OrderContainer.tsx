@@ -10,6 +10,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { OrderDetail } from "./OrderDetail";
+import { useWebSocket } from "@/hooks/useWebSocket";
 
 type Props = {
     companyId:string,
@@ -19,6 +20,7 @@ export function OrderContainer(props: Props) {
     const { companyId } = props;
 
     const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+    const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null)
     const [selectedTable, setSelectedTable] = useState<Table | null>(null);
     const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -34,7 +36,8 @@ export function OrderContainer(props: Props) {
 
 
     const [roomsApi, setRoomsApi] = useState<Room[]>([]);
-    const [tablesApi, setTablesApi] = useState<Table[]>([]);
+    // const [tablesApi, setTablesApi] = useState<Table[]>([]);
+    const {tablesApi, actualizarMesas } = useWebSocket(selectedRoomId);
     const [ categoriesApi, setCategoriesApi] = useState<Category[]>([]);
     const [ productsApi, setProductsApi] = useState<Product[]>([]);
     const [productPricesApi, setProductPricesApi] = useState<ProductPrice[]>([]);
@@ -53,6 +56,12 @@ export function OrderContainer(props: Props) {
         return 0;
     };
 
+    const changeStatusTable = (estado : StatusTable) =>{
+      const nuevasMesas = tablesApi.map((mesa) =>
+        mesa.id === selectedTable?.id ? { ...mesa, status: estado} : mesa
+      );
+      actualizarMesas(nuevasMesas);
+    }
     const handleSubmit = () => {
         startTransition(async () => {
           try {
@@ -88,12 +97,13 @@ export function OrderContainer(props: Props) {
                         }
                     ]
                   });
-                  if(selectedTable){
-                    setSelectedTable( (prevState: any) => ({
-                      ...prevState,
-                      status: StatusTable.occupied
-                    }))
-                  }
+                  
+                  // if(selectedTable){
+                  //   setSelectedTable( (prevState: any) => ({
+                  //     ...prevState,
+                  //     status: StatusTable.occupied
+                  //   }))
+                  // }
                   
             }else{
                 //crear el orderItem a la order existente
@@ -110,7 +120,7 @@ export function OrderContainer(props: Props) {
                 })
             }
 
-
+            changeStatusTable(StatusTable.occupied)
 
               
 
@@ -158,20 +168,22 @@ export function OrderContainer(props: Props) {
       }, [])
     
       useEffect(() => {
+        
         if (!selectedRoom) return;
-        async function fetchTables() {
-          try {
-            const {data} = await axios.get("/api/table",{
-              params:{
-                roomId: selectedRoom?.id
-              }
-            });
-            setTablesApi(data);
-          } catch (error) {
-            console.error('Error loading tables:', error);
-          }
-        }
-        fetchTables();
+        setSelectedRoomId(selectedRoom?.id);
+        // async function fetchTables() {
+        //   try {
+        //     const {data} = await axios.get("/api/table",{
+        //       params:{
+        //         roomId: selectedRoom?.id
+        //       }
+        //     });
+        //     setTablesApi(data);
+        //   } catch (error) {
+        //     console.error('Error loading tables:', error);
+        //   }
+        // }
+        // fetchTables();
       }, [selectedRoom])
     
       async function getOrders(){
@@ -326,6 +338,7 @@ export function OrderContainer(props: Props) {
           setSelectedTable(null);
         } else if (selectedRoom) {
           setSelectedRoom(null);
+          setSelectedRoomId(null)
         }
       };
     
@@ -355,7 +368,10 @@ export function OrderContainer(props: Props) {
                 <button
                   key={item.id}
                   // onClick={() => onSelect(item)}
-                  onClick={() => setSelectedRoom(item)}
+                  onClick={() => {
+                    setSelectedRoom(item) 
+                    setSelectedRoomId(item.id)
+                  }}
                   className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-4 flex items-center space-x-4"
                 >
                   {/* {showImage && item.image && (
@@ -802,7 +818,7 @@ export function OrderContainer(props: Props) {
       </div>
 
       <div className="flex flex-col min-h-[600px] max-h-[800px] rounded-lg bg-background shadow-md hover:shadow-lg p-2 sm:p-4 w-full h-full">
-        <OrderDetail  orders={order} onDeleteOrder={onDeleteOrder} sendOrders={sendOrders} isPendingSendOrders={isPendingSendOrders} table={selectedTable}/>
+        <OrderDetail  orders={order} onDeleteOrder={onDeleteOrder} sendOrders={sendOrders} isPendingSendOrders={isPendingSendOrders} table={selectedTable} changeStatusTable={changeStatusTable}/>
       </div>
     </>
   )
