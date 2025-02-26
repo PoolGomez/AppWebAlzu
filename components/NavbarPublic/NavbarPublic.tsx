@@ -1,6 +1,4 @@
 import React from 'react'
-import { Input } from '../ui/input'
-import { Search } from 'lucide-react'
 import { ToggleTheme } from '../ToggleTheme'
 import { Logo } from '../Logo'
 import { Button } from '../ui/button'

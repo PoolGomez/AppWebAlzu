@@ -264,6 +264,7 @@ model Order {
   @@unique([companyId, number]) 
 
   OrderItem OrderItem[]
+  Payment Payment[]
 }
 
 model OrderItem {
@@ -284,6 +285,35 @@ model OrderItem {
 
   @@index([orderId])
   @@index([productId])
+}
+
+
+model Client {
+  id String @id @default(uuid())
+  name String
+  phone String
+  email String
+}
+
+enum PaymentMethod {
+  cash
+  credit
+}
+model Payment{
+  id String @id @default(uuid())
+  number Int? //@default(autoincrement()) @unique
+  companyId String
+  orderId String
+  clientId String
+  method PaymentMethod
+  amount Int
+
+  order Order @relation(fields:[orderId], references:[id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId])
 }
 
 

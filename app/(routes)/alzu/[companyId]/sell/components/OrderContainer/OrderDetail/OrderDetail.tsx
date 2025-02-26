@@ -15,14 +15,16 @@ import { CreateSale } from "./CreateSale";
 
 
 export  function OrderDetail(
-  {orders, onDeleteOrder,sendOrders, isPendingSendOrders, table, changeStatusTable}:
+  {orders, onDeleteOrder,sendOrders, isPendingSendOrders, table, setSelectedTable, changeStatusTable, getOrders}:
   {
     orders: OrderFull | null, 
     onDeleteOrder: (orderId: string)=>void,
     sendOrders: ()=>void,
     isPendingSendOrders: boolean,
     table: Table | null,
-    changeStatusTable: (estado: StatusTable)=>void
+    setSelectedTable: (table: Table | null)=>void,
+    changeStatusTable: (estado: StatusTable)=>void,
+    getOrders:()=>void
   }) {
   const [ totalOrder , setTotalOrder ] = useState(0);
   const [ countOrderCreated, setCountOrderCreated] = useState(false)
@@ -199,7 +201,12 @@ export  function OrderDetail(
                     Pagar
                   </button> */}
 
-                  <CreateSale changeStatusTable={changeStatusTable} orderId={orders?.id}/>
+                  <CreateSale 
+                    changeStatusTable={changeStatusTable} 
+                    orderId={orders?.id} 
+                    setSelectedTable={setSelectedTable}
+                    getOrders={getOrders}  
+                  />
                   
                 </div>
                 {/* <div className="mt-6 flex justify-center text-center text-sm text-gray-500">

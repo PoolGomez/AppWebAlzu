@@ -94,6 +94,36 @@ const data = {
   ],
   navMain: [
     {
+      title: "Salas",
+      url:"rooms",
+      icon: BookOpen,
+      isActive: false,
+    },
+    {
+      title: "Mesas",
+      url:"tables",
+      icon: BookOpen,
+      isActive: false,
+    },
+    {
+      title: "Productos",
+      url:"products",
+      icon: BookOpen,
+      isActive: false,
+    },
+    {
+      title: "Categorias",
+      url:"categories",
+      icon: BookOpen,
+      isActive: false,
+    },
+    {
+      title: "Tamaños",
+      url:"sizes",
+      icon: BookOpen,
+      isActive: false,
+    },
+    {
       title: "Vender",
       url: "#",
       icon: BookOpen,
@@ -147,14 +177,6 @@ const data = {
           title: "Tamaños",
           url: "/sizes",
         },
-      ],
-    },
-    {
-      title: "Salon",
-      url:"#",
-      icon: SquareTerminal,
-      isActive: true,
-      items:[
         {
           title: "Salas",
           url: "/rooms",
@@ -163,7 +185,7 @@ const data = {
           title: "Mesas",
           url: "/tables",
         },
-      ]
+      ],
     },
     {
       title:"Clientes",
@@ -428,9 +450,17 @@ export function AppSidebar({
                     <SidebarMenuItem>
                       <CollapsibleTrigger asChild>
                         <SidebarMenuButton tooltip={item.title}>
-                          {item.icon && <item.icon />}
-                          <span className="text-lg">{item.title}</span>
-                          <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                          <div className="flex gap-2 items-center justify-center">
+                          <Link href={`/alzu/${companySelected.id}/${item.url}`} className="">
+                            {item.icon && <item.icon />}
+                          </Link>
+                          
+                          <Link href={`/alzu/${companySelected.id}/${item.url}`}>
+                            <span className="text-base">{item.title}</span>
+                          </Link>
+                          </div>
+                          {/* <ChevronRight className="ml-auto" /> */}
+                          {/* <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" /> */}
                         </SidebarMenuButton>
                       </CollapsibleTrigger>
                       <CollapsibleContent>

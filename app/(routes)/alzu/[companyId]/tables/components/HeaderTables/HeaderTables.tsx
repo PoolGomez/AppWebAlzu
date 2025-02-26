@@ -1,4 +1,14 @@
-export function HeaderTables() {
+"use client"
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Plus } from "lucide-react"
+import { useState } from "react"
+import { FormCreateTable } from "../ListRooms"
+
+export function HeaderTables(
+    // {companyId}:{companyId:string}
+) {
+// const [openModalCreate, setOpenModalCreate] = useState(false)
 
   return (
     <div className="flex items-center justify-start">

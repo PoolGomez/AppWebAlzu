@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { StatusOrder, StatusTable } from "@prisma/client";
+import { StatusOrder, StatusTable, Table } from "@prisma/client";
 import axios from "axios";
 import { HandCoins, LoaderCircle } from "lucide-react";
 import { useState, useTransition } from "react";
@@ -34,7 +34,19 @@ const formSchema = z.object({
     categoryId: z.string().min(1, { message: 'Seleccione una categoria' }),
   })
 
-export function CreateSale({changeStatusTable, orderId}:{changeStatusTable: (estado: StatusTable)=>void , orderId: String | undefined}) {
+export function CreateSale(
+    {
+        changeStatusTable, 
+        orderId,
+        setSelectedTable,
+        getOrders
+    }:
+    {
+        changeStatusTable: (estado: StatusTable)=>void , 
+        orderId: String | undefined,
+        setSelectedTable:(table :Table | null)=> void,
+        getOrders:()=>void
+    }) {
 
     const [openModalCreate, setOpenModalCreate] = useState(false);
     const [isPendingChangeStatusOrder, startTransitionChangeStatusOrder] = useTransition();
@@ -64,6 +76,8 @@ export function CreateSale({changeStatusTable, orderId}:{changeStatusTable: (est
               console.log(error)
           }finally{
             changeStatusTable(StatusTable.available)
+            setSelectedTable(null)
+            getOrders()
             setOpenModalCreate(false)
           }
 

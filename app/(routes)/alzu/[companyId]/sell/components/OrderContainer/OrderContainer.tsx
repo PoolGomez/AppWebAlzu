@@ -818,7 +818,16 @@ export function OrderContainer(props: Props) {
       </div>
 
       <div className="flex flex-col min-h-[600px] max-h-[800px] rounded-lg bg-background shadow-md hover:shadow-lg p-2 sm:p-4 w-full h-full">
-        <OrderDetail  orders={order} onDeleteOrder={onDeleteOrder} sendOrders={sendOrders} isPendingSendOrders={isPendingSendOrders} table={selectedTable} changeStatusTable={changeStatusTable}/>
+        <OrderDetail  
+          orders={order} 
+          onDeleteOrder={onDeleteOrder} 
+          sendOrders={sendOrders} 
+          isPendingSendOrders={isPendingSendOrders} 
+          table={selectedTable}
+          setSelectedTable={setSelectedTable}
+          changeStatusTable={changeStatusTable}
+          getOrders={getOrders}
+        />
       </div>
     </>
   )
